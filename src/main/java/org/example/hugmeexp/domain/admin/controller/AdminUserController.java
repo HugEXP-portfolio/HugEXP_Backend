@@ -6,7 +6,7 @@ import org.example.hugmeexp.domain.admin.dto.response.AdminUserInfoResponse;
 import org.example.hugmeexp.domain.admin.dto.response.MonthlyRegistrationStatsResponse;
 import org.example.hugmeexp.domain.admin.service.AdminUserService;
 import org.example.hugmeexp.domain.user.dto.request.UserUpdateRequest;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,59 +38,44 @@ public class AdminUserController {
 
     @Operation(summary = "회원 목록 조회", description = "전체 회원 목록을 페이징하여 조회")
     @GetMapping
-    public ResponseEntity<Response<Page<AdminUserAllResponse>>> listUsers(
+    public ResponseEntity<ApiResponse<Page<AdminUserAllResponse>>> listUsers(
             @PageableDefault(size = 100) Pageable pageable) {
         Page<AdminUserAllResponse> page = adminUserService.getAllUsers(pageable);
-        return ResponseEntity.ok(Response.<Page<AdminUserAllResponse>>builder()
-                .message("회원 목록을 조회했습니다.")
-                .data(page)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원 목록을 조회했습니다.", page));
     }
 
     @Operation(summary = "회원 단일 조회", description = "특정 회원의 상세 정보를 조회")
     @GetMapping("/{username}")
-    public ResponseEntity<Response<AdminUserInfoResponse>> getUser(
+    public ResponseEntity<ApiResponse<AdminUserInfoResponse>> getUser(
             @PathVariable String username) { // @AuthenticationPrincipal은 지금 요청을 보낸 admin 계정의 username과 같은 값이 필요 없으므로 사용 x
         AdminUserInfoResponse user = adminUserService.getUserByAdmin(username);
-        return ResponseEntity.ok(Response.<AdminUserInfoResponse>builder()
-                .message("회원 정보를 조회했습니다.")
-                .data(user)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원 정보를 조회했습니다.", user));
     }
 
     @Operation(summary = "회원 정보 수정", description = "특정 회원의 정보를 수정")
     @PatchMapping("/{username}")
-    public ResponseEntity<Response<AdminUserInfoResponse>> updateUser(
+    public ResponseEntity<ApiResponse<AdminUserInfoResponse>> updateUser(
             @PathVariable String username,
             @Valid @RequestBody UserUpdateRequest request) {
         AdminUserInfoResponse updated = adminUserService.updateUserByAdmin(username, request);
-        return ResponseEntity.ok(Response.<AdminUserInfoResponse>builder()
-                .message("회원 정보가 수정되었습니다.")
-                .data(updated)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원 정보가 수정되었습니다.", updated));
     }
 
     @Operation(summary = "회원 삭제", description = "특정 회원을 삭제")
     @DeleteMapping("/{username}")
-    public ResponseEntity<Response<AdminUserInfoResponse>> deleteUser(
+    public ResponseEntity<ApiResponse<AdminUserInfoResponse>> deleteUser(
             @PathVariable String username) {
         AdminUserInfoResponse deleted = adminUserService.deleteUserByAdmin(username);
-        return ResponseEntity.ok(Response.<AdminUserInfoResponse>builder()
-                .message("회원이 성공적으로 삭제되었습니다.")
-                .data(deleted)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원이 성공적으로 삭제되었습니다.", deleted));
     }
 
     @Operation(summary = "권한 변경", description = "특정 회원의 역할을 변경")
     @PatchMapping("/{username}/role")
-    public ResponseEntity<Response<AdminUserInfoResponse>> changeUserRole(
+    public ResponseEntity<ApiResponse<AdminUserInfoResponse>> changeUserRole(
             @PathVariable String username,
             @Valid @RequestBody RoleChangeRequest request) {
         AdminUserInfoResponse result = adminUserService.changeUserRole(username, request);
-        return ResponseEntity.ok(Response.<AdminUserInfoResponse>builder()
-                .message("회원 권한이 변경되었습니다.")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원 권한이 변경되었습니다.", result));
     }
 
     @Operation(
@@ -98,12 +83,9 @@ public class AdminUserController {
             description = "최근 12개월간의 월별 신규 가입자 수를 조회합니다. 전월 대비 증감률도 포함됩니다."
     )
     @GetMapping("/monthly-stats")
-    public ResponseEntity<Response<List<MonthlyRegistrationStatsResponse>>> getMonthlyRegistrationStats() {
+    public ResponseEntity<ApiResponse<List<MonthlyRegistrationStatsResponse>>> getMonthlyRegistrationStats() {
         List<MonthlyRegistrationStatsResponse> stats = adminUserService.getMonthlyRegistrationStats();
-        return ResponseEntity.ok(Response.<List<MonthlyRegistrationStatsResponse>>builder()
-                .message("월별 가입자 통계를 조회했습니다.")
-                .data(stats)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("월별 가입자 통계를 조회했습니다.", stats));
     }
 
     @Operation(
@@ -111,7 +93,7 @@ public class AdminUserController {
             description = "지정된 개월 수만큼의 월별 신규 가입자 수를 조회합니다."
     )
     @GetMapping("/monthly-stats/{months}")
-    public ResponseEntity<Response<List<MonthlyRegistrationStatsResponse>>> getMonthlyRegistrationStats(
+    public ResponseEntity<ApiResponse<List<MonthlyRegistrationStatsResponse>>> getMonthlyRegistrationStats(
             @PathVariable int months) {
 
         if (months <= 0) {
@@ -120,9 +102,6 @@ public class AdminUserController {
             months = MAX_MONTHS_LIMIT;}
 
         List<MonthlyRegistrationStatsResponse> stats = adminUserService.getMonthlyRegistrationStats(months);
-        return ResponseEntity.ok(Response.<List<MonthlyRegistrationStatsResponse>>builder()
-                .message(months + "개월간 가입자 통계를 조회했습니다.")
-                .data(stats)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success(months + "개월간 가입자 통계를 조회했습니다.", stats));
     }
 }

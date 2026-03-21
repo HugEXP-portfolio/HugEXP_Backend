@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.example.hugmeexp.domain.missionTask.dto.request.MissionTaskRequest;
 import org.example.hugmeexp.domain.missionTask.dto.response.MissionTaskResponse;
 import org.example.hugmeexp.domain.missionTask.dto.response.UserMissionTaskResponse;
 import org.example.hugmeexp.domain.missionTask.service.MissionTaskService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,21 +43,18 @@ public class MissionController {
             description = "시스템에 등록된 모든 미션을 조회합니다.",
             security    = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             ))
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Response<List<MissionResponse>>> getAllMissions() {
-        return ResponseEntity.ok(Response.<List<MissionResponse>>builder()
-                .data(missionService.getAllMissions())
-                .message("미션 목록을 성공적으로 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<List<MissionResponse>>> getAllMissions() {
+        return ResponseEntity.ok(ApiResponse.success("미션 목록을 성공적으로 가져왔습니다.", missionService.getAllMissions()));
     }
 
     @Operation(
@@ -74,23 +70,20 @@ public class MissionController {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "201",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201",
                             description = "생성 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹이 존재하지 않음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹이 존재하지 않음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Response<MissionResponse>> createMission(@Valid @RequestBody MissionRequest missionRequest) {
+    public ResponseEntity<ApiResponse<MissionResponse>> createMission(@Valid @RequestBody MissionRequest missionRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.<MissionResponse>builder()
-                        .data(missionService.createMission(missionRequest))
-                        .message("미션이 성공적으로 생성되었습니다.")
-                        .build());
+                .body(ApiResponse.success("미션이 성공적으로 생성되었습니다.", missionService.createMission(missionRequest)));
     }
 
     @Operation(
@@ -105,21 +98,18 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Response<MissionResponse>> getMissionById(@PathVariable Long id) {
-        return ResponseEntity.ok(Response.<MissionResponse>builder()
-                .data(missionService.getMissionById(id))
-                .message("미션 " + id + "를 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<MissionResponse>> getMissionById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("미션 " + id + "를 가져왔습니다.", missionService.getMissionById(id)));
     }
 
     @Operation(
@@ -142,22 +132,19 @@ public class MissionController {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "업데이트 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Response<MissionResponse>> updateMission(@PathVariable Long id, @Valid @RequestBody MissionRequest missionRequest) {
-        return ResponseEntity.ok(Response.<MissionResponse>builder()
-                .data(missionService.updateMission(id, missionRequest))
-                .message("미션 " + id + "를 업데이트 하였습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<MissionResponse>> updateMission(@PathVariable Long id, @Valid @RequestBody MissionRequest missionRequest) {
+        return ResponseEntity.ok(ApiResponse.success("미션 " + id + "를 업데이트 하였습니다.", missionService.updateMission(id, missionRequest)));
     }
 
     @Operation(
@@ -172,8 +159,8 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "204", description = "삭제 성공 (콘텐츠 없음)"),
-                    @ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제 성공 (콘텐츠 없음)"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션을 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
@@ -200,22 +187,19 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "7"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "변경 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "미션 또는 그룹을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 또는 그룹을 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/group")
-    public ResponseEntity<Response<MissionResponse>> changeMissionGroup(@PathVariable Long id, @RequestParam Long missionGroupId) {
-        return ResponseEntity.ok(Response.<MissionResponse>builder()
-                .data(missionService.changeMissionGroup(id, missionGroupId))
-                .message("미션 " + id + "의 미션 그룹을 변경하였습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<MissionResponse>> changeMissionGroup(@PathVariable Long id, @RequestParam Long missionGroupId) {
+        return ResponseEntity.ok(ApiResponse.success("미션 " + id + "의 미션 그룹을 변경하였습니다.", missionService.changeMissionGroup(id, missionGroupId)));
     }
 
     @Operation(
@@ -230,21 +214,18 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "사용자 또는 미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 또는 미션을 찾을 수 없음")
             }
     )
     @GetMapping("/{missionId}/challenges")
-    public ResponseEntity<Response<UserMissionResponse>> getChallenge(@PathVariable Long missionId, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.OK).body(Response.<UserMissionResponse>builder()
-                .data(userMissionService.getUserMission(missionId, userDetails.getUsername()))
-                .message("미션 " + missionId + " 도전 정보를 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<UserMissionResponse>> getChallenge(@PathVariable Long missionId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("미션 " + missionId + " 도전 정보를 가져왔습니다.", userMissionService.getUserMission(missionId, userDetails.getUsername())));
     }
 
     @Operation(
@@ -259,21 +240,18 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "201",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201",
                             description = "도전 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "사용자 또는 미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 또는 미션을 찾을 수 없음")
             }
     )
     @PostMapping("/{id}/challenges")
-    public ResponseEntity<Response<UserMissionResponse>> challengeMission(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.<UserMissionResponse>builder()
-                .data(userMissionService.challengeMission(userDetails.getUsername(), id))
-                .message("미션 " + id + "에 도전하였습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<UserMissionResponse>> challengeMission(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("미션 " + id + "에 도전하였습니다.", userMissionService.challengeMission(userDetails.getUsername(), id)));
     }
 
     @Operation(
@@ -288,19 +266,17 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             ))
             }
     )
     @GetMapping("/{missionId}/tasks")
-    public ResponseEntity<Response<List<MissionTaskResponse>>> getAllMissionTasksByMissionId(@PathVariable Long missionId) {
-        return ResponseEntity.status(HttpStatus.OK).body(Response.<List<MissionTaskResponse>>builder().
-                data(missionTaskService.findByMissionId(missionId))
-                .build());
+    public ResponseEntity<ApiResponse<List<MissionTaskResponse>>> getAllMissionTasksByMissionId(@PathVariable Long missionId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("미션 태스크 목록을 성공적으로 가져왔습니다.", missionTaskService.findByMissionId(missionId)));
     }
 
     @Operation(
@@ -315,22 +291,19 @@ public class MissionController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )),
-                    @ApiResponse(responseCode = "404", description = "사용자, 미션 또는 유저미션을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자, 미션 또는 유저미션을 찾을 수 없음")
             }
     )
     @GetMapping("/{missionId}/my-tasks")
-    public ResponseEntity<Response<List<UserMissionTaskResponse>>> getMyMissionTasks(@PathVariable Long missionId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ApiResponse<List<UserMissionTaskResponse>>> getMyMissionTasks(@PathVariable Long missionId, @AuthenticationPrincipal UserDetails userDetails) {
         List<UserMissionTaskResponse> myTasks = missionTaskService.findUserMissionTasksByUsernameAndMissionId(userDetails.getUsername(), missionId);
-        return ResponseEntity.ok(Response.<List<UserMissionTaskResponse>>builder()
-                .data(myTasks)
-                .message("내 미션 태스크 목록을 성공적으로 가져왔습니다.")
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("내 미션 태스크 목록을 성공적으로 가져왔습니다.", myTasks));
     }
 
     @Operation(
@@ -353,21 +326,18 @@ public class MissionController {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "201",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201",
                             description = "추가 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             ))
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{missionId}/tasks")
-    public ResponseEntity<Response<Boolean>> addMissionTask(@PathVariable Long missionId, @Valid @RequestBody MissionTaskRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> addMissionTask(@PathVariable Long missionId, @Valid @RequestBody MissionTaskRequest request) {
         MissionTaskResponse response = missionTaskService.addMissionTask(missionId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.<Boolean>builder()
-                .data(response != null)
-                .message("미션 태스크를 성공적으로 추가했습니다.")
-                .build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("미션 태스크를 성공적으로 추가했습니다.", response != null));
     }
 }

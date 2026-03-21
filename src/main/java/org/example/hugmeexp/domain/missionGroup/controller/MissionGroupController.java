@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.example.hugmeexp.domain.missionGroup.dto.response.UserMissionGroupRes
 import org.example.hugmeexp.domain.missionGroup.exception.MissionGroupNotFoundException;
 import org.example.hugmeexp.domain.missionGroup.service.MissionGroupService;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,21 +41,21 @@ public class MissionGroupController {
             description = "시스템에 등록된 모든 미션 그룹 목록을 반환합니다.",
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
             responses = {
-                    @ApiResponse(
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )
                     )
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<Response<List<MissionGroupResponse>>> getMissionGroups() {
+    public ResponseEntity<ApiResponse<List<MissionGroupResponse>>> getMissionGroups() {
         List<MissionGroupResponse> missionGroups = missionGroupService.getAllMissionGroups();
-        return ResponseEntity.ok().body(Response.<List<MissionGroupResponse>>builder().data(missionGroups).message("미션 그룹 목록을 성공적으로 가져왔습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("미션 그룹 목록을 성공적으로 가져왔습니다.", missionGroups));
     }
 
     @Operation(
@@ -64,20 +63,20 @@ public class MissionGroupController {
             description = "로그인된 사용자가 속한 미션 그룹 목록을 반환합니다.",
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
             responses = {
-                    @ApiResponse(
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "200",
                             description = "조회 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )
                     )
             }
     )
     @GetMapping("/my")
-    public ResponseEntity<Response<List<UserMissionGroupResponse>>> getMyMissionGroups(@AuthenticationPrincipal UserDetails user) {
+    public ResponseEntity<ApiResponse<List<UserMissionGroupResponse>>> getMyMissionGroups(@AuthenticationPrincipal UserDetails user) {
         List<UserMissionGroupResponse> missionGroups = missionGroupService.getMyMissionGroups(user.getUsername());
-        return ResponseEntity.ok().body(Response.<List<UserMissionGroupResponse>>builder().data(missionGroups).message("미션 그룹 목록을 성공적으로 가져왔습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("미션 그룹 목록을 성공적으로 가져왔습니다.", missionGroups));
     }
 
     @Operation(
@@ -93,21 +92,21 @@ public class MissionGroupController {
                     )
             ),
             responses = {
-                    @ApiResponse(
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
                             responseCode = "201",
                             description = "생성 성공",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)
+                                    schema = @Schema(implementation = ApiResponse.class)
                             )
                     ),
-                    @ApiResponse(responseCode = "404", description = "강사 정보를 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "강사 정보를 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<Response<MissionGroupResponse>> createMissionGroup(@Valid @RequestBody MissionGroupRequest request, @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.status(201).body(Response.<MissionGroupResponse>builder().data(missionGroupService.createMissionGroup(request, user.getUsername())).message("미션 그룹을 생성하였습니다.").build());
+    public ResponseEntity<ApiResponse<MissionGroupResponse>> createMissionGroup(@Valid @RequestBody MissionGroupRequest request, @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.status(201).body(ApiResponse.success("미션 그룹을 생성하였습니다.", missionGroupService.createMissionGroup(request, user.getUsername())));
     }
 
     @Operation(
@@ -123,17 +122,17 @@ public class MissionGroupController {
                     )
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "조회 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
             }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<Response<MissionGroupResponse>> getMissionGroup(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MissionGroupResponse>> getMissionGroup(@PathVariable Long id) {
         List<MissionGroupResponse> missionGroups = missionGroupService.getMissionGroupById(id);
         if (missionGroups.isEmpty()) {
             throw new MissionGroupNotFoundException();
         }
-        return ResponseEntity.ok().body(Response.<MissionGroupResponse>builder().data(missionGroups.get(0)).message("미션그룹 " + id + "를 가져왔습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("미션그룹 " + id + "를 가져왔습니다.", missionGroups.get(0)));
     }
 
     @Operation(
@@ -158,15 +157,15 @@ public class MissionGroupController {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "수정 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음"),
-                    @ApiResponse(responseCode = "404", description = "강사 정보를 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "강사 정보를 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<Response<MissionGroupResponse>> updateMissionGroup(@PathVariable Long id, @Valid @RequestBody MissionGroupRequest request) {
-        return ResponseEntity.ok().body(Response.<MissionGroupResponse>builder().data(missionGroupService.updateMissionGroup(id, request)).message("미션그룹 " + id + "를 업데이트 하였습니다.").build());
+    public ResponseEntity<ApiResponse<MissionGroupResponse>> updateMissionGroup(@PathVariable Long id, @Valid @RequestBody MissionGroupRequest request) {
+        return ResponseEntity.ok().body(ApiResponse.success("미션그룹 " + id + "를 업데이트 하였습니다.", missionGroupService.updateMissionGroup(id, request)));
     }
 
     @Operation(
@@ -183,8 +182,8 @@ public class MissionGroupController {
                     )
             },
             responses = {
-                    @ApiResponse(responseCode = "204", description = "삭제 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "삭제 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
@@ -207,16 +206,13 @@ public class MissionGroupController {
                     )
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "조회 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
             }
     )
     @GetMapping("/{id}/missions")
-    public ResponseEntity<Response<List<MissionResponse>>> getMissionsByMissionGroupId(@PathVariable Long id) {
-        return ResponseEntity.ok().body(Response.<List<MissionResponse>>builder()
-                .data(missionService.getMissionsByMissionGroupId(id))
-                .message("미션 그룹 " + id + "의 미션 목록을 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<List<MissionResponse>>> getMissionsByMissionGroupId(@PathVariable Long id) {
+        return ResponseEntity.ok().body(ApiResponse.success("미션 그룹 " + id + "의 미션 목록을 가져왔습니다.", missionService.getMissionsByMissionGroupId(id)));
     }
 
     @Operation(
@@ -233,14 +229,14 @@ public class MissionGroupController {
                     )
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "조회 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹을 찾을 수 없음")
             }
     )
     @GetMapping("/{missionGroupId}/users")
-    public ResponseEntity<Response<List<UserProfileResponse>>> getUsersInMissionGroup(@PathVariable Long missionGroupId) {
+    public ResponseEntity<ApiResponse<List<UserProfileResponse>>> getUsersInMissionGroup(@PathVariable Long missionGroupId) {
         List<UserProfileResponse> users = missionGroupService.getUsersInMissionGroup(missionGroupId);
-        return ResponseEntity.ok().body(Response.<List<UserProfileResponse>>builder().data(users).message("미션 그룹 " + missionGroupId + "의 사용자 목록을 가져왔습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("미션 그룹 " + missionGroupId + "의 사용자 목록을 가져왔습니다.", users));
     }
 
     @Operation(
@@ -260,16 +256,16 @@ public class MissionGroupController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "201", description = "추가 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "추가 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/{missionGroupId}/users/{username}")
-    public ResponseEntity<Response<Void>> addUserToMissionGroup(@PathVariable Long missionGroupId,
+    public ResponseEntity<ApiResponse<Void>> addUserToMissionGroup(@PathVariable Long missionGroupId,
                                                                 @PathVariable String username) {
         missionGroupService.addUserToMissionGroup(username, missionGroupId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.<Void>builder().message("사용자 " + username + "를 미션 그룹 " + missionGroupId + "에 추가하였습니다.").build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("사용자 " + username + "를 미션 그룹 " + missionGroupId + "에 추가하였습니다."));
     }
 
     @Operation(
@@ -289,16 +285,16 @@ public class MissionGroupController {
                             schema = @Schema(type = "integer", example = "42"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "제거 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "제거 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
             }
     )
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{missionGroupId}/users/{username}")
-    public ResponseEntity<Response<Void>> removeUserFromMissionGroup(@PathVariable Long missionGroupId,
+    public ResponseEntity<ApiResponse<Void>> removeUserFromMissionGroup(@PathVariable Long missionGroupId,
                                                                      @PathVariable String username) {
         missionGroupService.removeUserFromMissionGroup(username, missionGroupId);
-        return ResponseEntity.ok().body(Response.<Void>builder().message("사용자 " + username + "를 미션 그룹 " + missionGroupId + "에서 제거하였습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("사용자 " + username + "를 미션 그룹 " + missionGroupId + "에서 제거하였습니다."));
     }
 
     @Operation(
@@ -313,13 +309,13 @@ public class MissionGroupController {
                             schema = @Schema(type = "integer", example = "5"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200", description = "조회 성공"),
-                    @ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "미션 그룹 또는 사용자 없음")
             }
     )
     @GetMapping("/{missionGroupId}/challenges")
-    public ResponseEntity<Response<List<UserMissionResponse>>> getMissionGroupChallenges(@PathVariable Long missionGroupId, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<ApiResponse<List<UserMissionResponse>>> getMissionGroupChallenges(@PathVariable Long missionGroupId, @AuthenticationPrincipal UserDetails userDetails) {
         List<UserMissionResponse> challenges = missionGroupService.findUserMissionByUsernameAndMissionGroup(userDetails.getUsername(), missionGroupId);
-        return ResponseEntity.ok().body(Response.<List<UserMissionResponse>>builder().data(challenges).message("사용자 " + userDetails.getUsername() + "의 미션 그룹 " + missionGroupId + " 도전 목록을 가져왔습니다.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("사용자 " + userDetails.getUsername() + "의 미션 그룹 " + missionGroupId + " 도전 목록을 가져왔습니다.", challenges));
     }
 }

@@ -36,6 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+### Claude ###
+.claude/
+
 ### others
 .env
 /src/main/resources/*.yml
