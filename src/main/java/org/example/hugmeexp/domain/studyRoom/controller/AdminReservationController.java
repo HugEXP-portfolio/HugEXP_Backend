@@ -3,7 +3,7 @@ package org.example.hugmeexp.domain.studyRoom.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.hugmeexp.domain.studyRoom.dto.response.ReservationListDto;
 import org.example.hugmeexp.domain.studyRoom.service.AdminReservationService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,9 @@ public class AdminReservationController {
      */
     @Operation(summary = "전체 예약 현황 조회", description = "시스템의 모든 예약 내역을 페이징하여 조회합니다.")
     @GetMapping
-    public ResponseEntity<Response<Page<ReservationListDto>>> getAllReservations(Pageable pageable) {
+    public ResponseEntity<ApiResponse<Page<ReservationListDto>>> getAllReservations(Pageable pageable) {
         Page<ReservationListDto> reservations = adminReservationService.getAllReservations(pageable);
-        Response<Page<ReservationListDto>> response = Response.<Page<ReservationListDto>>builder()
-                .message("전체 예약 목록을 조회했습니다.")
-                .data(reservations)
-                .build();
+        ApiResponse<Page<ReservationListDto>> response = ApiResponse.success("전체 예약 목록을 조회했습니다.", reservations);
         return ResponseEntity.ok(response);
     }
 
@@ -47,11 +44,9 @@ public class AdminReservationController {
      */
     @Operation(summary = "특정 예약 강제 취소", description = "관리자가 특정 예약을 강제로 취소(삭제)합니다.")
     @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Response<Void>> forceCancelReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<ApiResponse<Void>> forceCancelReservation(@PathVariable Long reservationId) {
         adminReservationService.forceCancelReservation(reservationId);
-        Response<Void> response = Response.<Void>builder()
-                .message("예약이 성공적으로 취소되었습니다.")
-                .build();
+        ApiResponse<Void> response = ApiResponse.success("예약이 성공적으로 취소되었습니다.");
         return ResponseEntity.ok(response);
     }
 }

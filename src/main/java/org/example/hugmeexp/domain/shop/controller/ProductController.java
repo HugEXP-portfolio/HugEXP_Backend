@@ -10,7 +10,7 @@ import org.example.hugmeexp.domain.shop.dto.PurchaseRequest;
 import org.example.hugmeexp.domain.shop.dto.PurchaseResponse;
 import org.example.hugmeexp.domain.shop.service.ProductService;
 import org.example.hugmeexp.domain.user.entity.User;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -31,18 +31,18 @@ public class ProductController {
 
     @GetMapping
     @Operation(summary = "전체 상품 조회", description = "모든 상품 목록을 조회한다.")
-    public ResponseEntity<Response<?>> getAllProducts(
+    public ResponseEntity<ApiResponse<?>> getAllProducts(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         User user = userDetails.getUser();
         log.info("login user: {}", user.getUsername());
         List<ProductResponse> allProduct = productService.getAllProducts(user);
-        return ResponseEntity.ok().body(Response.builder().data(allProduct).message("Successfully retrieved all products.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("Successfully retrieved all products.", allProduct));
     }
 
     @PostMapping("/purchase")
     @Operation(summary = "상품 구매", description = "수령인의 아이디를 입력해 상품을 구매한다.")
-    public ResponseEntity<Response<?>> purchaseProduct(
+    public ResponseEntity<ApiResponse<?>> purchaseProduct(
             @RequestBody PurchaseRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -51,12 +51,12 @@ public class ProductController {
         log.info("receiver's username: {}", request.getReceiverUsername());
         String purchaserUsername = userDetails.getUsername();
         PurchaseResponse response = productService.purchase(purchaserUsername, request);
-        return ResponseEntity.ok().body(Response.builder().data(response).message("Successfully purchased product.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("Successfully purchased product.", response));
     }
 
     @GetMapping("/history")
     @Operation(summary = "주문 내역 조회", description = "상품 구매 현황을 조회한다.")
-    public ResponseEntity<Response<?>> getOrders(
+    public ResponseEntity<ApiResponse<?>> getOrders(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -73,6 +73,6 @@ public class ProductController {
         log.info("end date: {}", endDate);
 
         List<OrderResponse> response = productService.getOrders(user, startDate, endDate);
-        return ResponseEntity.ok().body(Response.builder().data(response).message("Successfully retrieved orders.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("Successfully retrieved orders.", response));
     }
 }

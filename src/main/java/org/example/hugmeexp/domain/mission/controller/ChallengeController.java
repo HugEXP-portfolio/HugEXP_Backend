@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.example.hugmeexp.domain.mission.dto.response.UserMissionResponse;
 import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.service.SubmissionService;
 import org.example.hugmeexp.domain.mission.service.UserMissionService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,20 +51,18 @@ public class ChallengeController {
                             schema = @Schema(implementation = UserMissionState.class))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "상태 업데이트 성공",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-                    @ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음")
+                                    schema = @Schema(implementation = ApiResponse.class))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음")
             }
     )
     @PatchMapping("/{challengeId}")
-    public ResponseEntity<Response<Void>> updateChallengeState(@PathVariable Long challengeId, @RequestParam UserMissionState newProgress) {
+    public ResponseEntity<ApiResponse<Void>> updateChallengeState(@PathVariable Long challengeId, @RequestParam UserMissionState newProgress) {
         userMissionService.changeUserMissionState(challengeId, newProgress);
-        return ResponseEntity.ok(Response.<Void>builder()
-                .message("챌린지 상태가 성공적으로 업데이트되었습니다.")
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("챌린지 상태가 성공적으로 업데이트되었습니다."));
     }
 
     @Operation(
@@ -73,19 +70,16 @@ public class ChallengeController {
             description = "로그인된 강사가 배정된 모든 유저미션을 조회합니다.",
             security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth"),
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class)))
+                                    schema = @Schema(implementation = ApiResponse.class)))
             }
     )
     @PreAuthorize("hasRole('LECTURER')")
     @GetMapping()
-    public ResponseEntity<Response<List<UserMissionResponse>>> getAllChallenges(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(Response.<List<UserMissionResponse>>builder()
-                .data(userMissionService.getAllUserMissionsByTeacher(userDetails.getUsername()))
-                .message("모든 챌린지를 성공적으로 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<List<UserMissionResponse>>> getAllChallenges(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(ApiResponse.success("모든 챌린지를 성공적으로 가져왔습니다.", userMissionService.getAllUserMissionsByTeacher(userDetails.getUsername())));
     }
 
     @Operation(
@@ -100,19 +94,16 @@ public class ChallengeController {
                             schema = @Schema(type = "integer", example = "123"))
             },
             responses = {
-                    @ApiResponse(responseCode = "200",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
                             description = "조회 성공",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class))),
-                    @ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음")
+                                    schema = @Schema(implementation = ApiResponse.class))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음")
             }
     )
     @GetMapping("/{challengeId}")
-    public ResponseEntity<Response<UserMissionResponse>> getChallengeById(@PathVariable Long challengeId) {
-        return ResponseEntity.ok(Response.<UserMissionResponse>builder()
-                .data(userMissionService.getUserMissionByChallengeId(challengeId))
-                .message("챌린지 " + challengeId + "를 성공적으로 가져왔습니다.")
-                .build());
+    public ResponseEntity<ApiResponse<UserMissionResponse>> getChallengeById(@PathVariable Long challengeId) {
+        return ResponseEntity.ok(ApiResponse.success("챌린지 " + challengeId + "를 성공적으로 가져왔습니다.", userMissionService.getUserMissionByChallengeId(challengeId)));
     }
 
     @Operation(
@@ -133,24 +124,22 @@ public class ChallengeController {
                             schema = @Schema(implementation = SubmissionUploadRequest.class))
             ),
             responses = {
-                    @ApiResponse(responseCode = "201",
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201",
                             description = "제출 성공",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Response.class))),
-                    @ApiResponse(responseCode = "400", description = "잘못된 제출 데이터"),
-                    @ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음"),
-                    @ApiResponse(responseCode = "409", description = "이미 제출된 챌린지"),
-                    @ApiResponse(responseCode = "500", description = "서버 오류")
+                                    schema = @Schema(implementation = ApiResponse.class))),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 제출 데이터"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "챌린지(유저미션) 없음"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 제출된 챌린지"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류")
             }
     )
     @PostMapping("/{challengeId}/submissions")
-    public ResponseEntity<Response<Void>> submitChallenge(@PathVariable Long challengeId,
+    public ResponseEntity<ApiResponse<Void>> submitChallenge(@PathVariable Long challengeId,
                                                           @Valid @ModelAttribute SubmissionUploadRequest submissionUploadRequest,
                                                           @RequestParam("file") MultipartFile file) {
         submissionService.submitChallenge(challengeId, submissionUploadRequest, file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Response.<Void>builder()
-                .message("챌린지 제출이 성공적으로 완료되었습니다.")
-                .build());
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("챌린지 제출이 성공적으로 완료되었습니다."));
     }
 
 }

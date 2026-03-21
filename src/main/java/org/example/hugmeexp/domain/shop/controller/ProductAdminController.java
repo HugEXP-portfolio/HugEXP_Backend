@@ -8,7 +8,7 @@ import org.example.hugmeexp.domain.shop.dto.ProductRequest;
 import org.example.hugmeexp.domain.shop.dto.ProductResponse;
 import org.example.hugmeexp.domain.shop.entity.Product;
 import org.example.hugmeexp.domain.shop.service.ProductAdminService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,25 +23,25 @@ public class ProductAdminController {
 
     @PostMapping
     @Operation(summary = "상품 등록", description = "관리자가 상품을 등록한다.")
-    public ResponseEntity<Response<?>> registerProduct(
+    public ResponseEntity<ApiResponse<?>> registerProduct(
             @ModelAttribute ProductRequest request) {
         Product registeredProduct = productAdminService.registerProduct(request);
-        return ResponseEntity.status(201).body(Response.builder().data(registeredProduct).message("Product is successfully registered").build());
+        return ResponseEntity.status(201).body(ApiResponse.success("Product is successfully registered", registeredProduct));
     }
 
     @DeleteMapping("/{productId}")
     @Operation(summary = "상품 삭제", description = "관리자가 상품을 삭제한다.")
-    public ResponseEntity<Response<?>> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<ApiResponse<?>> deleteProduct(@PathVariable Long productId) {
         productAdminService.deleteProduct(productId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{productId}")
     @Operation(summary = "상품 수정", description = "관리자가 상품을 수정한다.")
-    public ResponseEntity<Response<?>> modifyProduct(
+    public ResponseEntity<ApiResponse<?>> modifyProduct(
             @PathVariable Long productId,
             @ModelAttribute ProductRequest request) {
         ProductResponse modifiedProduct = productAdminService.modifyProduct(productId, request);
-        return ResponseEntity.ok().body(Response.builder().data(modifiedProduct).message("Product with ID " + productId + " modified").build());
+        return ResponseEntity.ok().body(ApiResponse.success("Product with ID " + productId + " modified", modifiedProduct));
     }
 }

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionRequestDTO;
 import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionResponseDTO;
 import org.example.hugmeexp.domain.praise.service.PraiseEmojiReactionService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class PraiseEmojiReactionController {
     /* 칭찬 게시물에 반응 생성 */
     @Operation(summary = "칭찬게시물의 반응 생성", description = "칭찬게시물의 반응을 생성합니다.")
     @PostMapping("/{praiseId}/emojis")
-    public ResponseEntity<Response<PraiseEmojiReactionResponseDTO>> addEmojiReaction(
+    public ResponseEntity<ApiResponse<PraiseEmojiReactionResponseDTO>> addEmojiReaction(
             @PathVariable Long praiseId,
             @Valid @RequestBody PraiseEmojiReactionRequestDTO praiseEmojiReactionRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -35,10 +35,7 @@ public class PraiseEmojiReactionController {
 
         PraiseEmojiReactionResponseDTO praiseEmojiReactionResponseDTO = praiseEmojiReactionService.addEmojiReaction(praiseId,userDetails.getUser(),praiseEmojiReactionRequestDTO);
 
-        Response<PraiseEmojiReactionResponseDTO> response = Response.<PraiseEmojiReactionResponseDTO>builder()
-                .message("칭찬 게시물에 반응 생성 완료")
-                .data(praiseEmojiReactionResponseDTO)
-                .build();
+        ApiResponse<PraiseEmojiReactionResponseDTO> response = ApiResponse.success("칭찬 게시물에 반응 생성 완료", praiseEmojiReactionResponseDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -46,7 +43,7 @@ public class PraiseEmojiReactionController {
     /* 칭찬 게시물에 반응 삭제 */
     @Operation(summary = "칭찬게시물의 반응 삭제", description = "칭찬게시물의 반응을 삭제합니다.")
     @DeleteMapping("/{praiseId}/emojis/{emojiId}")
-    public ResponseEntity<Response<Void>> deleteEmojiReaction(
+    public ResponseEntity<ApiResponse<Void>> deleteEmojiReaction(
             @PathVariable Long praiseId,
             @PathVariable Long emojiId,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -56,10 +53,7 @@ public class PraiseEmojiReactionController {
 
         praiseEmojiReactionService.deleteEmojiReaction(praiseId,emojiId,userDetails.getUser());
 
-        Response<Void> response = Response.<Void>builder()
-                .message("칭찬 게시물 반응 삭제 완료")
-                .data(null)
-                .build();
+        ApiResponse<Void> response = ApiResponse.success("칭찬 게시물 반응 삭제 완료", null);
 
         return ResponseEntity.ok(response);
     }

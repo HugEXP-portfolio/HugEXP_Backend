@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.hugmeexp.global.infra.auth.dto.request.ModifyPasswordRequest;
 import org.example.hugmeexp.global.infra.auth.service.AuthService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,10 +25,10 @@ public class AuthController {
 
     @Operation(summary = "비밀번호 변경", description = "기존 비밀번호를 확인하고 새 비밀번호로 변경합니다.")
     @PutMapping("/password")
-    public ResponseEntity<Response> modifyPassword(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<ApiResponse> modifyPassword(@AuthenticationPrincipal UserDetails userDetails,
         @Valid @RequestBody ModifyPasswordRequest request) {
         // TODO: 예외 처리 변경
         authService.modifyPassword(userDetails.getUsername(), request);
-        return ResponseEntity.ok(Response.builder().message("비밀번호가 성공적으로 변경되었습니다.").build());
+        return ResponseEntity.ok(ApiResponse.success("비밀번호가 성공적으로 변경되었습니다."));
     }
 }

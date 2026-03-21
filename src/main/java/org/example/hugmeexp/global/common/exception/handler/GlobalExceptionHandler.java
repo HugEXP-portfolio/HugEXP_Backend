@@ -5,7 +5,7 @@ import org.example.hugmeexp.global.common.exception.BaseCustomException;
 import org.example.hugmeexp.global.common.exception.code.BaseCode;
 import org.example.hugmeexp.global.common.exception.BaseException;
 import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
-import org.example.hugmeexp.global.common.exception.response.ApiResponse;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleBaseCustomException(BaseCustomException e) {
         log.warn("Legacy Exception (BaseCustomException) is being handled: {}", e.getMessage(), e);
         String consistentMessage = ErrorStatus.PREFIX + e.getMessage();
-        ApiResponse<Void> response = ApiResponse.onFailure(consistentMessage, null);
+        ApiResponse<Void> response = ApiResponse.failure(consistentMessage, null);
         return ResponseEntity.status(e.getHttpStatus()).body(response);
     }
 
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
         BaseCode errorStatus = ErrorStatus.VALIDATION_ERROR;
-        ApiResponse<Map<String, String>> body = ApiResponse.onFailure(errorStatus, errors);
+        ApiResponse<Map<String, String>> body = ApiResponse.failure(errorStatus, errors);
         return super.handleExceptionInternal(
                 e,
                 body,
@@ -96,7 +96,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * BaseCode를 기반으로 실패 응답 ResponseEntity를 생성하는 유틸리티 메서드입니다.
      */
     private <T> ResponseEntity<ApiResponse<T>> createErrorResponse(BaseCode code, T data) {
-        ApiResponse<T> response = ApiResponse.onFailure(code, data);
+        ApiResponse<T> response = ApiResponse.failure(code, data);
         return ResponseEntity.status(code.getHttpStatus()).body(response);
     }
 }

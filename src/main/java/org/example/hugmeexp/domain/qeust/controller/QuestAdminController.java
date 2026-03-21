@@ -8,7 +8,7 @@ import org.example.hugmeexp.domain.qeust.dto.QuestRequest;
 import org.example.hugmeexp.domain.qeust.dto.QuestResponse;
 import org.example.hugmeexp.domain.qeust.dto.UserQuestResponse;
 import org.example.hugmeexp.domain.qeust.service.QuestAdminService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,35 +25,35 @@ public class QuestAdminController {
 
     @PostMapping
     @Operation(summary = "퀘스트 생성", description = "일일 퀘스트를 생성한다.")
-    public ResponseEntity<Response<?>> createQuest(@RequestBody QuestRequest request) {
+    public ResponseEntity<ApiResponse<?>> createQuest(@RequestBody QuestRequest request) {
         QuestResponse response = questAdminService.createQuest(request);
-        return ResponseEntity.status(201).body(Response.builder().data(response).message("Quest successfully created.").build());
+        return ResponseEntity.status(201).body(ApiResponse.success("Quest successfully created.", response));
     }
 
     @DeleteMapping("/{questId}")
     @Operation(summary = "퀘스트 삭제", description = "일일 퀘스트를 삭제한다.")
-    public ResponseEntity<Response<?>> deleteQuest(@PathVariable Long questId) {
+    public ResponseEntity<ApiResponse<?>> deleteQuest(@PathVariable Long questId) {
         questAdminService.deleteQuest(questId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{questId}")
     @Operation(summary = "퀘스트 수정", description = "일일 퀘스트를 수정한다.")
-    public ResponseEntity<Response<?>> modifyQuest(@PathVariable Long questId, @RequestBody QuestRequest request) {
+    public ResponseEntity<ApiResponse<?>> modifyQuest(@PathVariable Long questId, @RequestBody QuestRequest request) {
         QuestResponse response = questAdminService.modifyQuest(questId, request);
-        return ResponseEntity.ok().body(Response.builder().data(response).message("Quest successfully modified.").build());
+        return ResponseEntity.ok().body(ApiResponse.success("Quest successfully modified.", response));
     }
 
     @PostMapping("/assign/{username}")
     @Operation(summary = "유저 퀘스트 할당", description = "사용자에게 생성된 일일 퀘스트를 할당한다.")
-    public ResponseEntity<Response<?>> assignQuest(@PathVariable String username) {
+    public ResponseEntity<ApiResponse<?>> assignQuest(@PathVariable String username) {
         List<UserQuestResponse> response = questAdminService.assignQuest(username);
-        return ResponseEntity.ok(Response.builder().data(response).message("User Quest successfully assigned").build());
+        return ResponseEntity.ok(ApiResponse.success("User Quest successfully assigned", response));
     }
 
     @PutMapping("/reset")
     @Operation(summary = "유저 퀘스트 초기화", description = "모든 사용자의 일일 퀘스트의 진행도를 초기화한다.")
-    public ResponseEntity<Response<?>> resetQuest() {
+    public ResponseEntity<ApiResponse<?>> resetQuest() {
         questAdminService.resetQuest();
         return ResponseEntity.noContent().build();
     }
@@ -63,7 +63,7 @@ public class QuestAdminController {
 
     @PostMapping("/init")
     @Operation(summary = "퀘스트 일괄 생성", description = "init.sql로 인해 필요 없어진 호출")
-    public ResponseEntity<Response<?>> initQuest() {
+    public ResponseEntity<ApiResponse<?>> initQuest() {
         questAdminService.initQuest();
         return ResponseEntity.noContent().build();
     }

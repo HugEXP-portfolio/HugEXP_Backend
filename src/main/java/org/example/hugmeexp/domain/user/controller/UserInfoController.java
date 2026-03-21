@@ -8,7 +8,7 @@ import org.example.hugmeexp.domain.user.dto.response.UserInfoResponse;
 import org.example.hugmeexp.domain.user.dto.response.UserRankResponse;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.domain.user.service.UserService;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,25 +27,19 @@ public class UserInfoController {
 
     @Operation(summary = "로그인한 유저 상세 정보 조회", description = "유저 상세 정보 조회")
     @GetMapping("/api/v1/user")
-    public ResponseEntity<Response<UserInfoResponse>> getUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<UserInfoResponse>> getUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
 
         User user = userDetails.getUser();
         UserInfoResponse result = userService.getUserInfoResponse(user);
 
-        return ResponseEntity.ok(Response.<UserInfoResponse>builder()
-                .message("회원 정보를 불러왔습니다.")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("회원 정보를 불러왔습니다.", result));
     }
 
     @Operation(summary = "유저 랭킹 정보 조회", description = "유저 랭킹 정보 조회")
     @GetMapping("/api/v1/user/rank")
-    public ResponseEntity<Response<List<UserRankResponse>>> getUserRank() {
+    public ResponseEntity<ApiResponse<List<UserRankResponse>>> getUserRank() {
         List<UserRankResponse> result = userService.getUserRankings();
 
-        return ResponseEntity.ok(Response.<List<UserRankResponse>>builder()
-                .message("유저 랭킹 정보를 불러왔습니다.")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("유저 랭킹 정보를 불러왔습니다.", result));
     }
 }

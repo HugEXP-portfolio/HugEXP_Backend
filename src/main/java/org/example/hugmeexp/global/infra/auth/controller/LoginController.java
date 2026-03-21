@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.infra.auth.dto.request.LoginRequest;
 import org.example.hugmeexp.global.infra.auth.dto.response.AuthResponse;
 import org.example.hugmeexp.global.infra.auth.service.AuthService;
@@ -24,13 +24,10 @@ public class LoginController {
 
     @Operation(summary = "로그인", description = "로그인 요청을 보냄. 로그인 성공시, 액세스 토큰과 리프레시 토큰을 응답함.")
     @PostMapping("/api/login")
-    public ResponseEntity<Response<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         // 서비스에 비즈니스 로직 위임
         AuthResponse result = authService.login(request);
 
-        return ResponseEntity.ok(Response.<AuthResponse>builder()
-                .message("로그인에 성공했습니다")
-                .data(result)
-                .build());
+        return ResponseEntity.ok(ApiResponse.success("로그인에 성공했습니다", result));
     }
 }

@@ -8,7 +8,7 @@ import org.example.hugmeexp.domain.praise.dto.CommentRequestDTO;
 import org.example.hugmeexp.domain.praise.dto.CommentResponseDTO;
 import org.example.hugmeexp.domain.praise.service.CommentService;
 import org.example.hugmeexp.domain.user.entity.User;
-import org.example.hugmeexp.global.common.response.Response;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ public class CommentController {
     /* 댓글 작성 */
     @Operation(summary = "칭찬댓글 생성", description = "칭찬 게시물에 새로운 댓글을 생성합니다")
     @PostMapping("/{praiseId}/comments")
-    public ResponseEntity<Response<CommentResponseDTO>> createComment(
+    public ResponseEntity<ApiResponse<CommentResponseDTO>> createComment(
             @PathVariable Long praiseId,
             @RequestBody CommentRequestDTO commentRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails){
@@ -35,10 +35,7 @@ public class CommentController {
         User commentWriter = userDetails.getUser();
         CommentResponseDTO result = commentService.createComment(praiseId, commentRequestDTO, commentWriter);
 
-        Response<CommentResponseDTO> response = Response.<CommentResponseDTO>builder()
-                .message("댓글 작성 완료")
-                .data(result)
-                .build();
+        ApiResponse<CommentResponseDTO> response = ApiResponse.success("댓글 작성 완료", result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -46,16 +43,13 @@ public class CommentController {
     /* 댓글 삭제 */
     @Operation(summary = "칭찬댓글 삭제", description = "칭찬 게시물에 댓글을 삭제합니다")
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Response<Void>> deleteComment(
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
             @PathVariable Long commentId,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         commentService.deleteComment(commentId, userDetails.getUser());
 
-        Response<Void> response = Response.<Void>builder()
-                .message("댓글 삭제 완료")
-                .data(null)
-                .build();
+        ApiResponse<Void> response = ApiResponse.success("댓글 삭제 완료", null);
 
         return ResponseEntity.ok(response);
     }
