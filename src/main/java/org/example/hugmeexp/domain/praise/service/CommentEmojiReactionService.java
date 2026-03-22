@@ -2,8 +2,8 @@ package org.example.hugmeexp.domain.praise.service;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentEmojiReactionResponse;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.entity.CommentEmojiReaction;
 import org.example.hugmeexp.domain.praise.exception.*;
@@ -32,7 +32,7 @@ public class CommentEmojiReactionService {
 
     /* 댓글 반응 생성 */
     @Transactional
-    public CommentEmojiReactionResponseDTO createCommentReaction(Long praiseId, Long commentId, @Valid CommentEmojiReactionRequestDTO commentEmojiReactionRequestDTO, User user) {
+    public CommentEmojiReactionResponse createCommentReaction(Long praiseId, Long commentId, @Valid CommentEmojiReactionRequest commentEmojiReactionRequestDTO, User user) {
 
 
         // 이모지 형식 검증
@@ -65,7 +65,7 @@ public class CommentEmojiReactionService {
 
         commentEmojiReactionRepository.save(commentEmojiReaction);
 
-        return CommentEmojiReactionResponseDTO.from(commentEmojiReaction);
+        return CommentEmojiReactionResponse.from(commentEmojiReaction);
 
     }
 

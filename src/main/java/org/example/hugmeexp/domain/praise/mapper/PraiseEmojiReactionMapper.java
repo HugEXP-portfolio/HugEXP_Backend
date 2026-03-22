@@ -1,6 +1,6 @@
 package org.example.hugmeexp.domain.praise.mapper;
 
-import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionRequestDTO;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseEmojiReactionRequest;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseEmojiReaction;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 public interface PraiseEmojiReactionMapper {
 
-    default PraiseEmojiReaction toEntity(Praise praise, User user, PraiseEmojiReactionRequestDTO praiseEmojiReactionRequestDTO){
+    default PraiseEmojiReaction toEntity(Praise praise, User user, PraiseEmojiReactionRequest praiseEmojiReactionRequestDTO){
         return PraiseEmojiReaction.builder()
                 .praise(praise)
                 .reactorWriter(user)

@@ -1,7 +1,9 @@
 package org.example.hugmeexp.domain.praise.service;
 
 import org.example.hugmeexp.domain.notification.service.NotificationService;
-import org.example.hugmeexp.domain.praise.dto.*;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseRequest;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseDetailResponse;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseResponse;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.entity.PraiseEmojiReaction;
@@ -128,14 +130,14 @@ public class PraiseServiceTest {
     @DisplayName("칭찬 생성 테스트")
     void testCreatePraise() {
         // given
-        PraiseRequestDTO requestDTO = createPraiseRequestDTO();
+        PraiseRequest requestDTO = createPraiseRequest();
         Praise praise = createTestPraise(1L, sender, requestDTO.getContent(), requestDTO.getType(), null);
 
         // mock 설정
         setupMocksForCreatePraise(requestDTO, praise);
 
         // when
-        PraiseResponseDTO result = praiseService.createPraise(requestDTO, sender);
+        PraiseResponse result = praiseService.createPraise(requestDTO, sender);
 
         // then
         assertEquals(praise.getId(), result.getId());
@@ -150,14 +152,14 @@ public class PraiseServiceTest {
     @DisplayName("칭찬 생성 시 emojis 필드 빈 리스트 테스트")
     void testCreatePraiseEmojisEmptyList() {
         // given
-        PraiseRequestDTO requestDTO = createPraiseRequestDTO();
+        PraiseRequest requestDTO = createPraiseRequest();
         Praise praise = createTestPraise(1L, sender, requestDTO.getContent(), requestDTO.getType(), null);
 
         // mock 설정
         setupMocksForCreatePraise(requestDTO, praise);
 
         // when
-        PraiseResponseDTO result = praiseService.createPraise(requestDTO, sender);
+        PraiseResponse result = praiseService.createPraise(requestDTO, sender);
 
         // then
         // emojis 필드가 null이 아니고 빈 리스트여야 함
@@ -166,8 +168,8 @@ public class PraiseServiceTest {
     }
 
     // 칭찬 요청 DTO 생성 헬퍼 메소드
-    private PraiseRequestDTO createPraiseRequestDTO() {
-        return PraiseRequestDTO.builder()
+    private PraiseRequest createPraiseRequest() {
+        return PraiseRequest.builder()
                 .content("칭찬 내용")
                 .type(PraiseType.THANKS)
                 .receiverUsername(List.of(receiver1.getUsername(), receiver2.getUsername()))
@@ -175,7 +177,7 @@ public class PraiseServiceTest {
     }
 
     // 칭찬 생성 테스트를 위한 mock 설정 헬퍼 메소드
-    private void setupMocksForCreatePraise(PraiseRequestDTO requestDTO, Praise praise) {
+    private void setupMocksForCreatePraise(PraiseRequest requestDTO, Praise praise) {
         when(praiseMapper.toEntity(requestDTO, sender)).thenReturn(praise);
         when(praiseRepository.save(praise)).thenReturn(praise);
         when(userRepository.findByUsername(receiver1.getUsername())).thenReturn(Optional.of(receiver1));
@@ -202,20 +204,20 @@ public class PraiseServiceTest {
         setupMocksForFindByDateRange(startDate, endDate, testData);
 
         // when
-        List<PraiseResponseDTO> result = praiseService.findByDateRange(startDate, endDate, currentUser, false);
+        List<PraiseResponse> result = praiseService.findByDateRange(startDate, endDate, currentUser, false);
 
         // then
         assertEquals(4, result.size(), "6월에 생성된 칭찬은 4개여야 합니다");
 
         // 결과에 포함된 칭찬 ID 확인
-        List<Long> resultIds = result.stream().map(PraiseResponseDTO::getId).toList();
+        List<Long> resultIds = result.stream().map(PraiseResponse::getId).toList();
         assertTrue(resultIds.contains(testData.junePraises.get(0).getId()), "6월 칭찬1이 결과에 포함되어야 합니다");
         assertTrue(resultIds.contains(testData.junePraises.get(1).getId()), "6월 칭찬2가 결과에 포함되어야 합니다");
         assertTrue(resultIds.contains(testData.junePraises.get(2).getId()), "6월 칭찬3이 결과에 포함되어야 합니다");
         assertTrue(resultIds.contains(testData.junePraises.get(3).getId()), "6월 칭찬4가 결과에 포함되어야 합니다");
 
         // 댓글 수 확인
-        for (PraiseResponseDTO dto : result) {
+        for (PraiseResponse dto : result) {
             assertEquals(1L, dto.getCommentCount(), "각 칭찬에는 댓글이 1개씩 있어야 합니다");
         }
     }
@@ -327,18 +329,18 @@ public class PraiseServiceTest {
         setupMocksForFindByDateRangeOnlyRelatedToMe(startDate, endDate, currentUser, testData);
 
         // when
-        List<PraiseResponseDTO> result = praiseService.findByDateRange(startDate, endDate, currentUser, true);
+        List<PraiseResponse> result = praiseService.findByDateRange(startDate, endDate, currentUser, true);
 
         // then
         assertEquals(2, result.size(), "6월에 나와 관련된 칭찬은 2개여야 합니다");
 
         // 결과에 포함된 칭찬 ID 확인
-        List<Long> resultIds = result.stream().map(PraiseResponseDTO::getId).toList();
+        List<Long> resultIds = result.stream().map(PraiseResponse::getId).toList();
         assertTrue(resultIds.contains(testData.junePraises.get(0).getId()), "내가 보낸 칭찬이 결과에 포함되어야 합니다");
         assertTrue(resultIds.contains(testData.junePraises.get(1).getId()), "내가 받은 칭찬이 결과에 포함되어야 합니다");
 
         // 댓글 수 확인
-        for (PraiseResponseDTO dto : result) {
+        for (PraiseResponse dto : result) {
             assertEquals(1L, dto.getCommentCount(), "각 칭찬에는 댓글이 1개씩 있어야 합니다");
         }
     }
@@ -396,7 +398,7 @@ public class PraiseServiceTest {
                 .thenReturn(List.of()); // 빈 리스트 반환
 
         // when
-        List<PraiseResponseDTO> result = praiseService.findByDateRange(startDate, endDate, currentUser, true);
+        List<PraiseResponse> result = praiseService.findByDateRange(startDate, endDate, currentUser, true);
 
         // then
         assertTrue(result.isEmpty(), "결과 리스트는 비어 있어야 합니다");
@@ -469,18 +471,18 @@ public class PraiseServiceTest {
         setupMocksForSearchByKeywordAndDate(startDate, endDate, currentUser, keyword, testData);
 
         // when
-        List<PraiseResponseDTO> result = praiseService.searchByKeywordAndDate(startDate, endDate, currentUser, true, keyword);
+        List<PraiseResponse> result = praiseService.searchByKeywordAndDate(startDate, endDate, currentUser, true, keyword);
 
         // then
         assertEquals(2, result.size(), "키워드 '테스트유저'로 검색한 나와 관련된 칭찬은 2개여야 합니다");
 
         // 결과에 포함된 칭찬 ID 확인
-        List<Long> resultIds = result.stream().map(PraiseResponseDTO::getId).toList();
+        List<Long> resultIds = result.stream().map(PraiseResponse::getId).toList();
         assertTrue(resultIds.contains(testData.junePraises.get(0).getId()), "내가 보낸 칭찬이 결과에 포함되어야 합니다");
         assertTrue(resultIds.contains(testData.junePraises.get(1).getId()), "내가 받은 칭찬이 결과에 포함되어야 합니다");
 
         // 댓글 수 확인
-        for (PraiseResponseDTO dto : result) {
+        for (PraiseResponse dto : result) {
             assertEquals(1L, dto.getCommentCount(), "각 칭찬에는 댓글이 1개씩 있어야 합니다");
         }
     }
@@ -542,7 +544,7 @@ public class PraiseServiceTest {
                 .thenReturn(List.of()); // 빈 리스트 반환
 
         // when
-        List<PraiseResponseDTO> result = praiseService.searchByKeywordAndDate(startDate, endDate, currentUser, true, keyword);
+        List<PraiseResponse> result = praiseService.searchByKeywordAndDate(startDate, endDate, currentUser, true, keyword);
 
         // then
         assertTrue(result.isEmpty(), "결과 리스트는 비어 있어야 합니다");
@@ -629,7 +631,7 @@ public class PraiseServiceTest {
         setupMocksForGetPraiseDetail(praiseId, praise, praiseReceiver, comment, reaction, commentReaction);
 
         // when
-        PraiseDetailResponseDTO result = praiseService.getPraiseDetail(praiseId);
+        PraiseDetailResponse result = praiseService.getPraiseDetail(praiseId);
 
         // then
         assertEquals(praiseId, result.getId());
@@ -756,7 +758,7 @@ public class PraiseServiceTest {
         when(praiseEmojiReactionRepository.findByPraise(praise4)).thenReturn(List.of());
 
         // when
-        List<PraiseResponseDTO> result = praiseService.findPopularPraises(startDate, endDate, limit);
+        List<PraiseResponse> result = praiseService.findPopularPraises(startDate, endDate, limit);
 
         // then
         assertEquals(limit, result.size(), "결과는 상위 3개의 칭찬글이어야 합니다");
@@ -780,7 +782,7 @@ public class PraiseServiceTest {
                 .thenReturn(List.of()); // 빈 리스트 반환
 
         // when
-        List<PraiseResponseDTO> result = praiseService.findPopularPraises(startDate, endDate, limit);
+        List<PraiseResponse> result = praiseService.findPopularPraises(startDate, endDate, limit);
 
         // then
         assertTrue(result.isEmpty(), "결과 리스트는 비어 있어야 합니다");

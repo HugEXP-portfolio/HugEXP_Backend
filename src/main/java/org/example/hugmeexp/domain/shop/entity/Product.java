@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.hugmeexp.domain.shop.dto.ProductRequest;
+import org.example.hugmeexp.domain.shop.dto.request.ProductRequest;
 
 @Getter
 @Entity

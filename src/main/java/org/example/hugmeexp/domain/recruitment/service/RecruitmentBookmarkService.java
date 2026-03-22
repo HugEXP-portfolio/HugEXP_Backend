@@ -2,7 +2,7 @@ package org.example.hugmeexp.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
 import org.example.hugmeexp.domain.recruitment.entity.RecruitmentBookmark;
 import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
 import org.example.hugmeexp.domain.recruitment.exception.DuplicateRecruitmentBookmarkException;
@@ -77,17 +77,17 @@ public class RecruitmentBookmarkService {
      * 사용자 ID를 기반으로 즐겨찾기된 모든 채용 공고를 반환합니다.
      *
      * @param userId 즐겨찾기 목록을 조회할 사용자 ID
-     * @return 즐겨찾기된 채용 공고의 DTO 리스트 (RecruitmentResponseDTO)
+     * @return 즐겨찾기된 채용 공고의 DTO 리스트 (RecruitmentResponse)
      */
     @Transactional(readOnly = true)
-    public List<RecruitmentResponseDTO> getRecruitmentBookmarks(Long userId) {
+    public List<RecruitmentResponse> getRecruitmentBookmarks(Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
         List<RecruitmentBookmark> recruitmentBookmarks = recruitmentBookmarkRepository.findAllByUser(user);
 
         return recruitmentBookmarks.stream()
-                .map(bm -> RecruitmentResponseDTO.from(bm.getRecruitment()))
+                .map(bm -> RecruitmentResponse.from(bm.getRecruitment()))
                 .toList();
     }
 }

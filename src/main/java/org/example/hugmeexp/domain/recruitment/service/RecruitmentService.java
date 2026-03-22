@@ -2,11 +2,22 @@ package org.example.hugmeexp.domain.recruitment.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.recruitment.dto.*;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentSearchCondition;
+import org.example.hugmeexp.domain.recruitment.dto.request.TagRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.TechItemRequest;
+import org.example.hugmeexp.domain.recruitment.dto.response.EducationOption;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentCompanySearchResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentDetailResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentFilterResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.SalaryRange;
+import org.example.hugmeexp.domain.recruitment.dto.response.TagResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.TechStackResponse;
 import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
 import org.example.hugmeexp.domain.recruitment.exception.RecruitmentNotFoundException;
-import org.example.hugmeexp.domain.recruitment.dto.TechItemRequestDTO;
-import org.example.hugmeexp.domain.recruitment.dto.TagRequestDTO;
+import org.example.hugmeexp.domain.recruitment.dto.request.TechItemRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.TagRequest;
 import org.example.hugmeexp.domain.recruitment.entity.TechItem;
 import org.example.hugmeexp.domain.recruitment.entity.TechStack;
 import org.example.hugmeexp.domain.recruitment.entity.Tag;
@@ -40,13 +51,13 @@ public class RecruitmentService {
     private final TagRepository tagRepository;
     private final TagItemRepository tagItemRepository;
     private final CompanyRepository companyRepository;
-    static final List<EducationOptionDTO> EDUCATION_OPTIONS = List.of(
-            new EducationOptionDTO("무관", 0),
-            new EducationOptionDTO("고졸", 10),
-            new EducationOptionDTO("초대졸", 20),
-            new EducationOptionDTO("대졸", 30),
-            new EducationOptionDTO("석사", 40),
-            new EducationOptionDTO("박사", 50)
+    static final List<EducationOption> EDUCATION_OPTIONS = List.of(
+            new EducationOption("무관", 0),
+            new EducationOption("고졸", 10),
+            new EducationOption("초대졸", 20),
+            new EducationOption("대졸", 30),
+            new EducationOption("석사", 40),
+            new EducationOption("박사", 50)
     );
     static final List<Integer> EXPERIENCE_OPTIONS = List.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
     static final List<String> WORK_LOCATIONS  = List.of("판교", "강남", "구로");
@@ -61,9 +72,9 @@ public class RecruitmentService {
      * @param cond 검색 조건 DTO
      * @param page 페이지 번호 (0부터 시작)
      * @param size 페이지 크기 (기본값: 80)
-     * @return 필터링된 채용 공고 목록 (RecruitmentResponseDTO)
+     * @return 필터링된 채용 공고 목록 (RecruitmentResponse)
      */
-    public Page<RecruitmentResponseDTO> listRecruitments(RecruitmentSearchConditionDTO cond, int page, int size) {
+    public Page<RecruitmentResponse> listRecruitments(RecruitmentSearchCondition cond, int page, int size) {
         // 페이지 설정 (size 만큼)
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "modifiedAt"));
 
@@ -75,11 +86,11 @@ public class RecruitmentService {
     }
 
     /**
-     * RecruitmentSearchConditionDTO의 techStackCount와 tagCount 필드를 설정합니다.
+     * RecruitmentSearchCondition의 techStackCount와 tagCount 필드를 설정합니다.
      *
      * @param conditionDTO 검색 조건 DTO
      */
-    private void setCountFields(RecruitmentSearchConditionDTO conditionDTO) {
+    private void setCountFields(RecruitmentSearchCondition conditionDTO) {
         // techStacks 카운트 설정
         if (conditionDTO.getTechStacks() != null && !conditionDTO.getTechStacks().isEmpty()) {
             conditionDTO.setTechStackCount((long) conditionDTO.getTechStacks().size());
@@ -106,7 +117,7 @@ public class RecruitmentService {
      *
      * @return 최신 채용 공고 목록
      */
-    public List<RecruitmentResponseDTO> findLatestRecruitments(int limit) {
+    public List<RecruitmentResponse> findLatestRecruitments(int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         return recruitmentRepository.findLatestRecruitments(pageable);
     }
@@ -119,10 +130,10 @@ public class RecruitmentService {
      * @return 채용 공고 상세 정보 DTO
      */
     @Transactional(readOnly = true)
-    public RecruitmentDetailResponseDTO getRecruitmentDetail(Long id){
+    public RecruitmentDetailResponse getRecruitmentDetail(Long id){
         Recruitment recruitment = recruitmentRepository.findDetailById(id).orElseThrow(() -> new RecruitmentNotFoundException());
 
-        return RecruitmentDetailResponseDTO.from(recruitment);
+        return RecruitmentDetailResponse.from(recruitment);
     }
 
     /**
@@ -133,12 +144,12 @@ public class RecruitmentService {
      * @param limit 최대 조회 개수
      * @return 키워드에 해당하는 채용 공고 목록 (공고 ID, 제목, 회사명 등 포함)
      */
-    public List<RecruitmentCompanySearchResponseDTO> findByKeyword(String keyword, int limit) {
+    public List<RecruitmentCompanySearchResponse> findByKeyword(String keyword, int limit) {
         Pageable pageable = PageRequest.of(0, limit);
         List<Recruitment> recruitments = recruitmentRepository.findByKeyword(keyword, pageable);
 
         return recruitments.stream()
-                .map(RecruitmentCompanySearchResponseDTO::from)
+                .map(RecruitmentCompanySearchResponse::from)
                 .toList();
 
     }
@@ -158,24 +169,24 @@ public class RecruitmentService {
      * 채용 공고 필터 옵션을 조회합니다.
      * 교육 수준, 경력, 기술 스택, 근무 지역, 태그, 급여 범위 등의 필터 옵션을 반환합니다.
      *
-     * @return RecruitmentFilterResponseDTO 필터 옵션 DTO
+     * @return RecruitmentFilterResponse 필터 옵션 DTO
      */
-    public RecruitmentFilterResponseDTO getFilterOptions(){
+    public RecruitmentFilterResponse getFilterOptions(){
 
-        List<TechStackDTO> techStacks = techItemRepository.findAll().stream()
-                .map(TechStackDTO::from)
+        List<TechStackResponse> techStacks = techItemRepository.findAll().stream()
+                .map(TechStackResponse::from)
                 .toList();
 
-        List<TagDTO> tags = tagItemRepository.findAll().stream()
-                .map(TagDTO::from)
+        List<TagResponse> tags = tagItemRepository.findAll().stream()
+                .map(TagResponse::from)
                 .toList();
 
-        SalaryRangeDTO salaryRange = SalaryRangeDTO.builder()
+        SalaryRange salaryRange = SalaryRange.builder()
                 .min(DEFAULT_MIN_SALARY)
                 .max(DEFAULT_MAX_SALARY)
                 .build();
 
-        return RecruitmentFilterResponseDTO.builder()
+        return RecruitmentFilterResponse.builder()
                 .educationOptions(EDUCATION_OPTIONS)
                 .experienceOptions(EXPERIENCE_OPTIONS)
                 .techStacks(techStacks)
@@ -187,14 +198,14 @@ public class RecruitmentService {
 
 
     @Transactional
-    public RecruitmentResponseDTO createOrUpdateRecruitment(RecruitmentRequestDTO requestDTO) {
+    public RecruitmentResponse createOrUpdateRecruitment(RecruitmentRequest requestDTO) {
         // 태그 및 기술 스택의 중복 제거 및 정렬
-        Set<TagRequestDTO> uniqueTags = new TreeSet<>();
+        Set<TagRequest> uniqueTags = new TreeSet<>();
         if (requestDTO.getTags() != null) {
             uniqueTags.addAll(requestDTO.getTags());
         }
         requestDTO.setTags(new ArrayList<>(uniqueTags));
-        Set<TechItemRequestDTO> uniqueTechItems = new TreeSet<>();
+        Set<TechItemRequest> uniqueTechItems = new TreeSet<>();
         if (requestDTO.getRequiredSkills() != null) {
             uniqueTechItems.addAll(requestDTO.getRequiredSkills());
         }
@@ -206,10 +217,10 @@ public class RecruitmentService {
                 .map((existing) -> updateRecruitment(existing, requestDTO))
                 .orElseGet(() -> createRecruitment(requestDTO, uniqueTags, uniqueTechItems));
 
-        return RecruitmentResponseDTO.from(recruitment);
+        return RecruitmentResponse.from(recruitment);
     }
 
-    private Recruitment createRecruitment(RecruitmentRequestDTO requestDTO, Set<TagRequestDTO> uniqueTags, Set<TechItemRequestDTO> uniqueTechItems) {
+    private Recruitment createRecruitment(RecruitmentRequest requestDTO, Set<TagRequest> uniqueTags, Set<TechItemRequest> uniqueTechItems) {
         // Company를 먼저 저장 (transient 문제 해결)
         //Company savedCompany = companyRepository.save(requestDTO.getCompany().toEntity());
         Company company = requestDTO.getCompany().toEntity();
@@ -232,7 +243,7 @@ public class RecruitmentService {
         return recruitment;
     }
 
-    private Recruitment updateRecruitment(Recruitment recruitment, RecruitmentRequestDTO requestDTO) {
+    private Recruitment updateRecruitment(Recruitment recruitment, RecruitmentRequest requestDTO) {
         // 기존 채용 공고 업데이트
         recruitment.updateFromRequest(requestDTO);
 
@@ -248,14 +259,14 @@ public class RecruitmentService {
     /**
      * 기존 기술 스택과 새로운 기술 스택을 비교하여 효율적으로 업데이트
      */
-    private void updateTechStacksEfficiently(Recruitment recruitment, List<TechItemRequestDTO> newRequiredSkills) {
+    private void updateTechStacksEfficiently(Recruitment recruitment, List<TechItemRequest> newRequiredSkills) {
         if (newRequiredSkills == null) {
             newRequiredSkills = List.of();
         }
 
         // 새로운 기술명 집합
         Set<String> newTechNames = newRequiredSkills.stream()
-                .map(TechItemRequestDTO::getEnglishName)
+                .map(TechItemRequest::getEnglishName)
                 .collect(Collectors.toSet());
 
         // 기존 기술명 집합
@@ -290,7 +301,7 @@ public class RecruitmentService {
 
         // 추가할 기술 스택 생성
         if (!techNamesToAdd.isEmpty()) {
-            Set<TechItemRequestDTO> skillsToAdd = newRequiredSkills.stream()
+            Set<TechItemRequest> skillsToAdd = newRequiredSkills.stream()
                     .filter(skill -> techNamesToAdd.contains(skill.getEnglishName()))
                     .collect(Collectors.toSet());
 
@@ -304,14 +315,14 @@ public class RecruitmentService {
      * 2. 없는 TechItem 생성
      * 3. TechStack 생성 및 저장
      */
-    private void processTechStacks(Recruitment recruitment, Set<TechItemRequestDTO> requiredSkills) {
+    private void processTechStacks(Recruitment recruitment, Set<TechItemRequest> requiredSkills) {
         if (requiredSkills == null || requiredSkills.isEmpty()) {
             return;
         }
 
         // 필요한 기술명 추출
         Set<String> techNames = requiredSkills.stream()
-                .map(TechItemRequestDTO::getEnglishName)
+                .map(TechItemRequest::getEnglishName)
                 .collect(Collectors.toSet());
 
         // 기존 TechItem 조회 및 새로운 TechItem 생성
@@ -332,7 +343,7 @@ public class RecruitmentService {
     /**
      * TechItem을 조회하거나 생성하는 메서드
      */
-    private List<TechItem> getOrCreateTechItems(Set<String> techNames, Set<TechItemRequestDTO> requiredSkills) {
+    private List<TechItem> getOrCreateTechItems(Set<String> techNames, Set<TechItemRequest> requiredSkills) {
         // 기존 TechItem 조회
         List<TechItem> existingTechItems = techItemRepository.findAllByEnglishNameIn(techNames);
 
@@ -343,7 +354,7 @@ public class RecruitmentService {
         // 새로운 TechItem 생성
         List<TechItem> newTechItems = requiredSkills.stream()
                 .filter(skill -> !existingTechNames.contains(skill.getEnglishName()))
-                .map(TechItemRequestDTO::toEntity)
+                .map(TechItemRequest::toEntity)
                 .toList();
 
         // 새로운 TechItem 저장
@@ -358,14 +369,14 @@ public class RecruitmentService {
     /**
      * 기존 태그와 새로운 태그를 비교하여 효율적으로 업데이트
      */
-    private void updateTagsEfficiently(Recruitment recruitment, List<TagRequestDTO> newTags) {
+    private void updateTagsEfficiently(Recruitment recruitment, List<TagRequest> newTags) {
         if (newTags == null) {
             newTags = List.of();
         }
 
         // 새로운 태그명 집합
         Set<String> newTagNames = newTags.stream()
-                .map(TagRequestDTO::getTagName)
+                .map(TagRequest::getTagName)
                 .collect(Collectors.toSet());
 
         // 기존 태그명 집합
@@ -401,7 +412,7 @@ public class RecruitmentService {
 
         // 추가할 태그 생성
         if (!tagNamesToAdd.isEmpty()) {
-            Set<TagRequestDTO> tagsToAdd = newTags.stream()
+            Set<TagRequest> tagsToAdd = newTags.stream()
                     .filter(tag -> tagNamesToAdd.contains(tag.getTagName()))
                     .collect(Collectors.toSet());
 
@@ -415,14 +426,14 @@ public class RecruitmentService {
      * 2. 없는 TagItem 생성
      * 3. Tag 생성 및 저장
      */
-    private void processTags(Recruitment recruitment, Set<TagRequestDTO> tags) {
+    private void processTags(Recruitment recruitment, Set<TagRequest> tags) {
         if (tags == null || tags.isEmpty()) {
             return;
         }
 
         // 필요한 태그명 추출
         Set<String> tagNames = tags.stream()
-                .map(TagRequestDTO::getTagName)
+                .map(TagRequest::getTagName)
                 .collect(Collectors.toSet());
 
         // 기존 TagItem 조회 및 새로운 TagItem 생성
@@ -443,7 +454,7 @@ public class RecruitmentService {
     /**
      * TagItem을 조회하거나 생성하는 메서드
      */
-    private List<TagItem> getOrCreateTagItems(Set<String> tagNames, Set<TagRequestDTO> tags) {
+    private List<TagItem> getOrCreateTagItems(Set<String> tagNames, Set<TagRequest> tags) {
         // 기존 TagItem 조회
         List<TagItem> existingTagItems = tagItemRepository.findAllByTagNameIn(tagNames);
 
@@ -454,7 +465,7 @@ public class RecruitmentService {
         // 새로운 TagItem 생성
         List<TagItem> newTagItems = tags.stream()
                 .filter(tag -> !existingTagNames.contains(tag.getTagName()))
-                .map(TagRequestDTO::toEntity)
+                .map(TagRequest::toEntity)
                 .toList();
 
         // 새로운 TagItem 저장

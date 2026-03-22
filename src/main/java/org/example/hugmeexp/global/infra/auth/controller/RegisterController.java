@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.infra.auth.dto.request.RegisterRequest;
-import org.example.hugmeexp.global.infra.auth.dto.RegisterResponse;
+import org.example.hugmeexp.global.infra.auth.dto.response.RegisterResponse;
 import org.example.hugmeexp.global.infra.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import io.swagger.v3.oas.annotations.media.Content;

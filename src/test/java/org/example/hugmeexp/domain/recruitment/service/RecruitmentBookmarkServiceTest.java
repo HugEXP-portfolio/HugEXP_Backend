@@ -1,6 +1,6 @@
 package org.example.hugmeexp.domain.recruitment.service;
 
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
 import org.example.hugmeexp.domain.recruitment.entity.Company;
 import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
 import org.example.hugmeexp.domain.recruitment.entity.RecruitmentBookmark;
@@ -243,7 +243,7 @@ public class RecruitmentBookmarkServiceTest {
             given(recruitmentBookmarkRepository.findAllByUser(testUser)).willReturn(bookmarks);
 
             // When
-            List<RecruitmentResponseDTO> result = recruitmentBookmarkService.getRecruitmentBookmarks(userId);
+            List<RecruitmentResponse> result = recruitmentBookmarkService.getRecruitmentBookmarks(userId);
 
             // Then
             assertThat(result).isNotNull();
@@ -286,7 +286,7 @@ public class RecruitmentBookmarkServiceTest {
             given(recruitmentBookmarkRepository.findAllByUser(testUser)).willReturn(Collections.emptyList());
 
             // When
-            List<RecruitmentResponseDTO> result = recruitmentBookmarkService.getRecruitmentBookmarks(userId);
+            List<RecruitmentResponse> result = recruitmentBookmarkService.getRecruitmentBookmarks(userId);
 
             // Then
             assertThat(result).isNotNull();

@@ -2,8 +2,8 @@ package org.example.hugmeexp.domain.praise.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseEmojiReactionResponse;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseEmojiReaction;
 import org.example.hugmeexp.domain.praise.exception.*;
@@ -34,7 +34,7 @@ public class PraiseEmojiReactionService {
 
     /* 칭찬 게시물에 반응 생성 */
     @Transactional
-    public PraiseEmojiReactionResponseDTO addEmojiReaction(Long praiseId, User user, PraiseEmojiReactionRequestDTO praiseEmojiReactionRequestDTO) {
+    public PraiseEmojiReactionResponse addEmojiReaction(Long praiseId, User user, PraiseEmojiReactionRequest praiseEmojiReactionRequestDTO) {
 
         // praise 조회
         Praise praise = praiseRepository.findById(praiseId).orElseThrow(() -> new PraiseNotFoundException());
@@ -60,7 +60,7 @@ public class PraiseEmojiReactionService {
         // 동일한 이모지 반응자 전체 조회
         List<PraiseEmojiReaction> sameEmojiReactions = praiseEmojiReactionRepository.findByPraiseAndEmoji(praise,saved.getEmoji());
 
-        return PraiseEmojiReactionResponseDTO.from(saved, sameEmojiReactions);
+        return PraiseEmojiReactionResponse.from(saved, sameEmojiReactions);
     }
 
     /* 칭찬 게시물에 반응 삭제 */

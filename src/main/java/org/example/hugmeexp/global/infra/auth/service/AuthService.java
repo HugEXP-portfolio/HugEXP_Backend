@@ -3,7 +3,7 @@ package org.example.hugmeexp.global.infra.auth.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.hugmeexp.domain.user.entity.User;
-import org.example.hugmeexp.global.infra.auth.dto.RegisterResponse;
+import org.example.hugmeexp.global.infra.auth.dto.response.RegisterResponse;
 import org.example.hugmeexp.global.infra.auth.dto.request.LoginRequest;
 import org.example.hugmeexp.global.infra.auth.dto.request.ModifyPasswordRequest;
 import org.example.hugmeexp.global.infra.auth.dto.request.RegisterRequest;

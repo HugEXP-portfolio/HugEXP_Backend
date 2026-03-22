@@ -1,7 +1,7 @@
 package org.example.hugmeexp.domain.attendance.service;
 
-import org.example.hugmeexp.domain.attendance.dto.AttendanceCheckResponse;
-import org.example.hugmeexp.domain.attendance.dto.AttendanceStatusResponse;
+import org.example.hugmeexp.domain.attendance.dto.response.AttendanceCheckResponse;
+import org.example.hugmeexp.domain.attendance.dto.response.AttendanceStatusResponse;
 import org.example.hugmeexp.domain.attendance.entity.Attendance;
 import org.example.hugmeexp.domain.attendance.exception.AttendanceAlreadyCheckedException;
 import org.example.hugmeexp.domain.attendance.exception.AttendanceUserNotFoundException;

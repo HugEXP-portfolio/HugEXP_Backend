@@ -7,7 +7,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.recruitment.dto.*;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentSearchCondition;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentCompanySearchResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentDetailResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentFilterResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentListResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.TagResponse;
 import org.example.hugmeexp.domain.recruitment.service.RecruitmentService;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,14 +60,14 @@ public class RecruitmentController {
         }
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RecruitmentResponseDTO>>> listRecruitments(
-            @Valid @ModelAttribute RecruitmentSearchConditionDTO conditionDTO,
+    public ResponseEntity<ApiResponse<List<RecruitmentResponse>>> listRecruitments(
+            @Valid @ModelAttribute RecruitmentSearchCondition conditionDTO,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "80") int size) {
 
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(conditionDTO, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(conditionDTO, page, size);
 
-        ApiResponse<List<RecruitmentResponseDTO>> response = ApiResponse.success("채용 공고 목록 조회 성공", result.getContent());
+        ApiResponse<List<RecruitmentResponse>> response = ApiResponse.success("채용 공고 목록 조회 성공", result.getContent());
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -74,7 +81,7 @@ public class RecruitmentController {
                 description = "공고 목록 조회 성공",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = RecruitmentCompanySearchResponseDTO.class)
+                    schema = @Schema(implementation = RecruitmentCompanySearchResponse.class)
                 )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -88,18 +95,18 @@ public class RecruitmentController {
         }
     )
     @GetMapping("/companies")
-    public ResponseEntity<ApiResponse<List<RecruitmentCompanySearchResponseDTO>>> searchCompanies(
+    public ResponseEntity<ApiResponse<List<RecruitmentCompanySearchResponse>>> searchCompanies(
             @RequestParam(required = false) String keyword
     ){
 
         int limit = 5;
-        List<RecruitmentCompanySearchResponseDTO> result = recruitmentService.findByKeyword(keyword,limit);
+        List<RecruitmentCompanySearchResponse> result = recruitmentService.findByKeyword(keyword,limit);
 
         if(result.isEmpty()){
             return ResponseEntity.noContent().build();
         }
 
-        ApiResponse<List<RecruitmentCompanySearchResponseDTO>> response = ApiResponse.success("회사 이름 또는 제목 키워드로 공고 목록 조회 성공", result);
+        ApiResponse<List<RecruitmentCompanySearchResponse>> response = ApiResponse.success("회사 이름 또는 제목 키워드로 공고 목록 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -119,11 +126,11 @@ public class RecruitmentController {
             }
     )
     @GetMapping("/home")
-    public ResponseEntity<ApiResponse<List<RecruitmentResponseDTO>>> findLatestRecruitments() {
+    public ResponseEntity<ApiResponse<List<RecruitmentResponse>>> findLatestRecruitments() {
         int limit = 5;
-        List<RecruitmentResponseDTO> result = recruitmentService.findLatestRecruitments(limit);
+        List<RecruitmentResponse> result = recruitmentService.findLatestRecruitments(limit);
 
-        ApiResponse<List<RecruitmentResponseDTO>> response = ApiResponse.success("최신 채용 공고 조회 성공", result);
+        ApiResponse<List<RecruitmentResponse>> response = ApiResponse.success("최신 채용 공고 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -137,7 +144,7 @@ public class RecruitmentController {
                 description = "채용 공고 상세 조회 성공",
                 content = @Content(
                     mediaType = "application/json",
-                    schema = @Schema(implementation = RecruitmentDetailResponseDTO.class)
+                    schema = @Schema(implementation = RecruitmentDetailResponse.class)
                 )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -147,11 +154,11 @@ public class RecruitmentController {
         }
     )
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<RecruitmentDetailResponseDTO>> findRecruitmentDetail(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<RecruitmentDetailResponse>> findRecruitmentDetail(@PathVariable Long id) {
 
-        RecruitmentDetailResponseDTO result = recruitmentService.getRecruitmentDetail(id);
+        RecruitmentDetailResponse result = recruitmentService.getRecruitmentDetail(id);
 
-        ApiResponse<RecruitmentDetailResponseDTO> response = ApiResponse.success("채용 공고 상세 조회 성공", result);
+        ApiResponse<RecruitmentDetailResponse> response = ApiResponse.success("채용 공고 상세 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -170,7 +177,7 @@ public class RecruitmentController {
                 description = "필터 옵션 정상 조회 성공",
                 content = @Content(
                         mediaType = "application/json",
-                        schema = @Schema(implementation = RecruitmentFilterResponseDTO.class)
+                        schema = @Schema(implementation = RecruitmentFilterResponse.class)
                 )
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -180,11 +187,11 @@ public class RecruitmentController {
         }
     )
     @GetMapping("/filters")
-    public ResponseEntity<ApiResponse<RecruitmentFilterResponseDTO>> getFilters(){
+    public ResponseEntity<ApiResponse<RecruitmentFilterResponse>> getFilters(){
 
-        RecruitmentFilterResponseDTO result = recruitmentService.getFilterOptions();
+        RecruitmentFilterResponse result = recruitmentService.getFilterOptions();
 
-        ApiResponse<RecruitmentFilterResponseDTO> response = ApiResponse.success("채용 공고 필터 옵션 조회 성공", result);
+        ApiResponse<RecruitmentFilterResponse> response = ApiResponse.success("채용 공고 필터 옵션 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -195,19 +202,19 @@ public class RecruitmentController {
                     "동일한 sourceId가 존재하면 업데이트하고, 없으면 새로 생성합니다."
     )
     @PostMapping("/scrape")
-    public ResponseEntity<ApiResponse<RecruitmentResponseDTO>> createRecruitment(
+    public ResponseEntity<ApiResponse<RecruitmentResponse>> createRecruitment(
             @RequestHeader("X-API-Key") String apiKey,
-            @Valid @RequestBody RecruitmentRequestDTO requestDTO) {
+            @Valid @RequestBody RecruitmentRequest requestDTO) {
 
         // API 키 인증
         if (!validApiKey.equals(apiKey)) {
-            ApiResponse<RecruitmentResponseDTO> errorResponse = ApiResponse.success("유효하지 않은 API 키입니다.");
+            ApiResponse<RecruitmentResponse> errorResponse = ApiResponse.success("유효하지 않은 API 키입니다.");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
 
-        RecruitmentResponseDTO createdRecruitment = recruitmentService.createOrUpdateRecruitment(requestDTO);
+        RecruitmentResponse createdRecruitment = recruitmentService.createOrUpdateRecruitment(requestDTO);
 
-        ApiResponse<RecruitmentResponseDTO> response = ApiResponse.success("채용 공고 생성 성공", createdRecruitment);
+        ApiResponse<RecruitmentResponse> response = ApiResponse.success("채용 공고 생성 성공", createdRecruitment);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

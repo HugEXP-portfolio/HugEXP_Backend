@@ -1,6 +1,6 @@
 package org.example.hugmeexp.global.auth.service;
 
-import org.example.hugmeexp.global.infra.auth.dto.RegisterResponse;
+import org.example.hugmeexp.global.infra.auth.dto.response.RegisterResponse;
 
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.domain.user.enums.UserRole;

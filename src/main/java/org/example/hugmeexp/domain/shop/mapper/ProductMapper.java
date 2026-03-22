@@ -1,6 +1,6 @@
 package org.example.hugmeexp.domain.shop.mapper;
 
-import org.example.hugmeexp.domain.shop.dto.ProductResponse;
+import org.example.hugmeexp.domain.shop.dto.response.ProductResponse;
 import org.example.hugmeexp.domain.shop.entity.Product;
 import org.example.hugmeexp.domain.shop.entity.ProductImage;
 import org.mapstruct.Mapper;

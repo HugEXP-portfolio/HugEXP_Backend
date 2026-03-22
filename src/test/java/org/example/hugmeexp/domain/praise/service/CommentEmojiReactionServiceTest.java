@@ -1,8 +1,8 @@
 package org.example.hugmeexp.domain.praise.service;
 
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionResponseDTO;
-import org.example.hugmeexp.domain.praise.dto.ReactionUserDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentEmojiReactionResponse;
+import org.example.hugmeexp.domain.praise.dto.response.ReactionUser;
 import org.example.hugmeexp.domain.praise.entity.CommentEmojiReaction;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
@@ -57,7 +57,7 @@ class CommentEmojiReactionServiceTest {
         String emojiValue = "😊";
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(emojiValue)
                 .build();
         
@@ -87,10 +87,10 @@ class CommentEmojiReactionServiceTest {
                 .build();
         
         // 응답 DTO 생성
-        CommentEmojiReactionResponseDTO responseDTO = CommentEmojiReactionResponseDTO.builder()
+        CommentEmojiReactionResponse responseDTO = CommentEmojiReactionResponse.builder()
                 .id(1L)
                 .commentId(commentId)
-                .reactorName(ReactionUserDTO.builder()
+                .reactorName(ReactionUser.builder()
                         .id(user.getId())
                         .username(user.getUsername())
                         .name(user.getName())
@@ -107,7 +107,7 @@ class CommentEmojiReactionServiceTest {
         when(commentEmojiReactionRepository.save(reaction)).thenReturn(reaction);
         
         // when
-        CommentEmojiReactionResponseDTO result = commentEmojiReactionService.createCommentReaction(praiseId, commentId, requestDTO, user);
+        CommentEmojiReactionResponse result = commentEmojiReactionService.createCommentReaction(praiseId, commentId, requestDTO, user);
         
         // then
         assertNotNull(result, "이모지 반응 생성 결과는 null이 아니어야 합니다");
@@ -129,7 +129,7 @@ class CommentEmojiReactionServiceTest {
         String emojiValue = "😊";
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(emojiValue)
                 .build();
         
@@ -180,7 +180,7 @@ class CommentEmojiReactionServiceTest {
         String invalidEmoji = "abc"; // 이모지가 아닌 일반 텍스트
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(invalidEmoji)
                 .build();
         
@@ -209,7 +209,7 @@ class CommentEmojiReactionServiceTest {
         String emojiValue = "😊";
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(emojiValue)
                 .build();
         
@@ -241,7 +241,7 @@ class CommentEmojiReactionServiceTest {
         String emojiValue = "😊";
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(emojiValue)
                 .build();
         
@@ -275,7 +275,7 @@ class CommentEmojiReactionServiceTest {
         String emojiValue = "😊";
         
         // 요청 DTO 생성
-        CommentEmojiReactionRequestDTO requestDTO = CommentEmojiReactionRequestDTO.builder()
+        CommentEmojiReactionRequest requestDTO = CommentEmojiReactionRequest.builder()
                 .emoji(emojiValue)
                 .build();
         

@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.hugmeexp.domain.qeust.dto.QuestRequest;
+import org.example.hugmeexp.domain.qeust.dto.request.QuestRequest;
 import org.example.hugmeexp.domain.qeust.enums.QuestType;
 
 @Getter

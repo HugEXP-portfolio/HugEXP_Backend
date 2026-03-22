@@ -5,7 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.praise.dto.*;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseRequest;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseSearchRequest;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseDetailResponse;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseRatioResponse;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseResponse;
+import org.example.hugmeexp.domain.praise.dto.response.RecentPraiseSenderResponse;
 import org.example.hugmeexp.domain.praise.service.PraiseService;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -31,8 +36,8 @@ public class PraiseController {
     /* 칭찬 생성 */
     @Operation(summary = "칭찬 생성", description = "새로운 칭찬을 생성합니다")
     @PostMapping
-    public ResponseEntity<ApiResponse<PraiseResponseDTO>> createPraise(
-            @RequestBody @Valid PraiseRequestDTO praiseRequestDTO,
+    public ResponseEntity<ApiResponse<PraiseResponse>> createPraise(
+            @RequestBody @Valid PraiseRequest praiseRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         log.info("Praise creation request : {} ", praiseRequestDTO);
@@ -41,11 +46,11 @@ public class PraiseController {
         // 로그인된 사용자 정보에서 User 꺼낸다
         User senderId = userDetails.getUser();
 
-        PraiseResponseDTO result = praiseService.createPraise(praiseRequestDTO,senderId );
+        PraiseResponse result = praiseService.createPraise(praiseRequestDTO,senderId );
 
         log.info("Praise saved successfully : {} " , result);
 
-        ApiResponse<PraiseResponseDTO> response = ApiResponse.success("작성 완료", result);
+        ApiResponse<PraiseResponse> response = ApiResponse.success("작성 완료", result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -54,8 +59,8 @@ public class PraiseController {
     // /api/v1/praises/search?startDate=OOOO-OO-OO&endDate=OOOO-OO-OO
     @Operation(summary = "날짜 기준 칭찬 게시물 조회", description = "날짜, 로그인 유저 여부(me), 키워드(keyword)로 칭찬을 조회합니다")
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<PraiseResponseDTO>>> getDatePraises(
-            @Valid @ModelAttribute PraiseSearchRequestDTO praiseSearchRequestDTO,
+    public ResponseEntity<ApiResponse<List<PraiseResponse>>> getDatePraises(
+            @Valid @ModelAttribute PraiseSearchRequest praiseSearchRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         LocalDate startDate = praiseSearchRequestDTO.getStartDate();
@@ -75,7 +80,7 @@ public class PraiseController {
 
         // 나에게 관련관 것만 보기 위한 조건 유저
         User currentUser = userDetails.getUser();
-        List<PraiseResponseDTO> result;
+        List<PraiseResponse> result;
 
         // keyword 가 있는 경우 분기 처리
         if(StringUtils.hasText(keyword)){
@@ -86,7 +91,7 @@ public class PraiseController {
 
         log.info("Total praises found in date range: {} entries", result.size());
 
-        ApiResponse<List<PraiseResponseDTO>> response = ApiResponse.success("날짜 기준 조회 성공", result);
+        ApiResponse<List<PraiseResponse>> response = ApiResponse.success("날짜 기준 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -94,8 +99,8 @@ public class PraiseController {
     /* 칭찬 반응 좋은 칭찬글 */
     @Operation(summary = "반응 좋은 칭찬 글 조회", description = "반응 수 기준으로 상위 5개 칭찬 글 조회합니다 ")
     @GetMapping("/popular")
-    public ResponseEntity<ApiResponse<List<PraiseResponseDTO>>> getPopularPraises(
-            @Valid @ModelAttribute PraiseSearchRequestDTO praiseSearchRequestDTO){
+    public ResponseEntity<ApiResponse<List<PraiseResponse>>> getPopularPraises(
+            @Valid @ModelAttribute PraiseSearchRequest praiseSearchRequestDTO){
 
         LocalDate startDate = praiseSearchRequestDTO.getStartDate();
         LocalDate endDate = praiseSearchRequestDTO.getEndDate();
@@ -109,9 +114,9 @@ public class PraiseController {
                     .body(ApiResponse.success("startDate 은 endDate 보다 이후일 수 없습니다.", List.of()));
         }
 
-        List<PraiseResponseDTO> popularPraises = praiseService.findPopularPraises(startDate, endDate, 5);
+        List<PraiseResponse> popularPraises = praiseService.findPopularPraises(startDate, endDate, 5);
 
-        ApiResponse<List<PraiseResponseDTO>> response = ApiResponse.success("반응 좋은 칭찬 글 조회 성공", popularPraises);
+        ApiResponse<List<PraiseResponse>> response = ApiResponse.success("반응 좋은 칭찬 글 조회 성공", popularPraises);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -120,18 +125,18 @@ public class PraiseController {
     /* 칭찬 칭찬 비율(한달동안 받은 칭찬 종류 각각 비율) */
     @Operation(summary = "한 달간 받은 칭찬 비율 조회", description = "로그인된 사용자가 한 달 동안 받은 칭찬을 타입별로 비율 계산합니다 ")
     @GetMapping("/me/ratio")
-    public ResponseEntity<ApiResponse<List<PraiseRatioResponseDTO>>> getPraiseRatio(
+    public ResponseEntity<ApiResponse<List<PraiseRatioResponse>>> getPraiseRatio(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         log.debug("Received praise ratio request - username : {}", userDetails.getUser().getUsername());
 
         Long userId = userDetails.getUser().getId();
 
-        List<PraiseRatioResponseDTO> praiseRatio = praiseService.getPraiseRatioForLastMonth(userId);
+        List<PraiseRatioResponse> praiseRatio = praiseService.getPraiseRatioForLastMonth(userId);
 
         log.info("Praise ratio result count: {}", praiseRatio.size());
 
-        ApiResponse<List<PraiseRatioResponseDTO>> response = ApiResponse.success("받은 칭찬 비율 조회 성공", praiseRatio);
+        ApiResponse<List<PraiseRatioResponse>> response = ApiResponse.success("받은 칭찬 비율 조회 성공", praiseRatio);
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
@@ -139,30 +144,30 @@ public class PraiseController {
     /* 칭찬 최근 칭찬 보낸 유저 조회 */
     @Operation(summary = "최근 칭찬 보낸 유저 조회 성공", description = "로그인된 사용자에게 가장 최근에 칭찬을 보낸 3명의 유저를 조회합니다. ")
     @GetMapping("/recent-senders")
-    public ResponseEntity<ApiResponse<List<RecentPraiseSenderResponseDTO>>> getRecentPraiseSenders(
+    public ResponseEntity<ApiResponse<List<RecentPraiseSenderResponse>>> getRecentPraiseSenders(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
         log.debug("Received recent praise senders request from user : {}", userDetails.getUser().getUsername());
         Long userId = userDetails.getUser().getId();
-        List<RecentPraiseSenderResponseDTO> recentSender = praiseService.getRecentPraiseSenders(userId);
+        List<RecentPraiseSenderResponse> recentSender = praiseService.getRecentPraiseSenders(userId);
 
         log.info("Recent praise senders result count: {}", recentSender.size());
 
-        ApiResponse<List<RecentPraiseSenderResponseDTO>> response = ApiResponse.success("최근 칭찬 보낸 유저 조회 성공", recentSender);
+        ApiResponse<List<RecentPraiseSenderResponse>> response = ApiResponse.success("최근 칭찬 보낸 유저 조회 성공", recentSender);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /* 칭찬 상세 조회 */
     @Operation(summary = "칭찬 상세 조회", description = "칭찬 게시물 한 개를 조회합니다.")
     @GetMapping("/{praiseId}")
-    public ResponseEntity<ApiResponse<PraiseDetailResponseDTO>> getPraiseDetail(
+    public ResponseEntity<ApiResponse<PraiseDetailResponse>> getPraiseDetail(
             @PathVariable Long praiseId
     ){
         log.info("Received request for praise detail: praiseId={}",praiseId);
 
-        PraiseDetailResponseDTO praiseDetail = praiseService.getPraiseDetail(praiseId);
+        PraiseDetailResponse praiseDetail = praiseService.getPraiseDetail(praiseId);
 
-        ApiResponse<PraiseDetailResponseDTO> response = ApiResponse.success("조회 완료", praiseDetail);
+        ApiResponse<PraiseDetailResponse> response = ApiResponse.success("조회 완료", praiseDetail);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

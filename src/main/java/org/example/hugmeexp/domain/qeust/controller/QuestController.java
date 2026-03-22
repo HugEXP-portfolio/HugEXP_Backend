@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.qeust.dto.UserQuestResponse;
+import org.example.hugmeexp.domain.qeust.dto.response.UserQuestResponse;
 import org.example.hugmeexp.domain.qeust.service.QuestService;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.global.common.response.ApiResponse;
