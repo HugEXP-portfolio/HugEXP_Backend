@@ -9,7 +9,6 @@ import org.example.hugmeexp.domain.mission.entity.*;
 import org.example.hugmeexp.domain.mission.enums.FileUploadType;
 import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.exception.*;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionSubmissionMapper;
 import org.example.hugmeexp.domain.mission.repository.*;
 import org.example.hugmeexp.domain.mission.util.FileUploadUtils;
 import org.example.hugmeexp.domain.missionGroup.exception.UserNotFoundException;
@@ -29,7 +28,6 @@ import java.util.UUID;
 public class SubmissionServiceImpl implements SubmissionService {
     private final UserMissionRepository userMissionRepository;
     private final UserMissionSubmissionRepository userMissionSubmissionRepository;
-    private final UserMissionSubmissionMapper userMissionSubmissionMapper;
     private final UserService userService;
     private final MissionRewardExpLogRepository missionRewardExpLogRepository;
     private final MissionRewardPointLogRepository missionRewardPointLogRepository;
@@ -50,7 +48,10 @@ public class SubmissionServiceImpl implements SubmissionService {
 
         String uploadDir = FileUploadUtils.getUploadPath(FileUploadType.MISSION_UPLOADS).toString();
 
-        Submission submission = userMissionSubmissionMapper.toEntity(submissionUploadRequest);
+        Submission submission = Submission.builder()
+                .comment(submissionUploadRequest.getComment())
+                .fileName(submissionUploadRequest.getFileName())
+                .build();
 
         submission.setUserMission(userMission);
 
@@ -97,7 +98,7 @@ public class SubmissionServiceImpl implements SubmissionService {
         Submission submission = userMissionSubmissionRepository.findByUserMission(userMission)
                 .orElseThrow(SubmissionNotFoundException::new);
 
-        return userMissionSubmissionMapper.toSubmissionResponse(submission);
+        return SubmissionResponse.from(submission);
     }
 
     @Override

@@ -1,8 +1,9 @@
 package org.example.hugmeexp.domain.missionGroup.service;
 
 import org.example.hugmeexp.domain.mission.dto.response.UserMissionResponse;
+import org.example.hugmeexp.domain.mission.entity.Mission;
 import org.example.hugmeexp.domain.mission.entity.UserMission;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionMapper;
+import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.repository.UserMissionRepository;
 import org.example.hugmeexp.domain.missionGroup.dto.request.MissionGroupRequest;
 import org.example.hugmeexp.domain.missionGroup.dto.response.MissionGroupResponse;
@@ -10,8 +11,6 @@ import org.example.hugmeexp.domain.missionGroup.dto.response.UserMissionGroupRes
 import org.example.hugmeexp.domain.missionGroup.entity.MissionGroup;
 import org.example.hugmeexp.domain.missionGroup.entity.UserMissionGroup;
 import org.example.hugmeexp.domain.missionGroup.exception.*;
-import org.example.hugmeexp.domain.missionGroup.mapper.MissionGroupMapper;
-import org.example.hugmeexp.domain.missionGroup.mapper.UserMissionGroupMapper;
 import org.example.hugmeexp.domain.missionGroup.repository.MissionGroupRepository;
 import org.example.hugmeexp.domain.missionGroup.repository.UserMissionGroupRepository;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
@@ -45,19 +44,10 @@ class MissionGroupServiceTest {
     private UserRepository userRepository;
 
     @Mock
-    private MissionGroupMapper missionGroupMapper;
-
-    @Mock
     private UserMissionGroupRepository userMissionGroupRepository;
 
     @Mock
-    private UserMissionMapper userMissionMapper;
-
-    @Mock
     private UserMissionRepository userMissionRepository;
-
-    @Mock
-    private UserMissionGroupMapper userMissionGroupMapper;
 
     @Mock
     private CacheManager cacheManager;
@@ -74,28 +64,13 @@ class MissionGroupServiceTest {
     @Test
     @DisplayName("모든 미션 그룹을 조회한다 - 성공")
     void getAllMissionGroups() {
-        UserProfileResponse teacher1 = new UserProfileResponse(
-                "", "teacher1", "Teacher One");
-        UserProfileResponse teacher2 = new UserProfileResponse(
-                "", "teacher2", "Teacher Two");
         // Given
-        MissionGroup group1 = mock(MissionGroup.class);
-        MissionGroup group2 = mock(MissionGroup.class);
-        MissionGroupResponse response1 = MissionGroupResponse
-                .builder()
-                .id(1L)
-                .name("Group1")
-                .teacher(teacher1)
-                .build();
-        MissionGroupResponse response2 = MissionGroupResponse
-                .builder()
-                .id(2L)
-                .name("Group2")
-                .teacher(teacher2)
-                .build();
+        User teacher1User = User.createUser("teacher1", "password", "Teacher One", "1234");
+        User teacher2User = User.createUser("teacher2", "password", "Teacher Two", "1234");
+        MissionGroup group1 = MissionGroup.builder().id(1L).name("Group1").teacher(teacher1User).build();
+        MissionGroup group2 = MissionGroup.builder().id(2L).name("Group2").teacher(teacher2User).build();
+
         when(missionGroupRepository.findAllWithTeacher()).thenReturn(List.of(group1, group2));
-        when(missionGroupMapper.toMissionGroupResponse(group1)).thenReturn(response1);
-        when(missionGroupMapper.toMissionGroupResponse(group2)).thenReturn(response2);
 
         // When
         List<MissionGroupResponse> result = missionGroupService.getAllMissionGroups();
@@ -111,9 +86,6 @@ class MissionGroupServiceTest {
     @DisplayName("새로운 미션 그룹을 생성한다 - 성공")
     void createMissionGroup() {
         // Given
-        UserProfileResponse teacher = new UserProfileResponse(
-                "", "teacher1", "teacher1");
-
         User user1 = User.createUser("teacher1", "password", "Teacher One", "1234");
         User user2 = User.createUser("admin", "password", "Admin User", "1234");
 
@@ -127,14 +99,8 @@ class MissionGroupServiceTest {
                 .name("New Group")
                 .teacher(user1)
                 .build();
-        MissionGroupResponse expectedResponse = MissionGroupResponse.builder()
-                .id(3L)
-                .name("New Group")
-                .teacher(teacher)
-                .build();
 
         when(missionGroupRepository.save(any(MissionGroup.class))).thenReturn(savedGroup);
-        when(missionGroupMapper.toMissionGroupResponse(savedGroup)).thenReturn(expectedResponse);
         when(userRepository.findByUsername("teacher1")).thenReturn(Optional.of(user1));
         when(userRepository.findByUsername("admin")).thenReturn(Optional.of(user2));
 
@@ -151,20 +117,11 @@ class MissionGroupServiceTest {
     @DisplayName("ID로 미션 그룹을 조회한다 - 존재O")
     void getMissionGroupById_found() {
         // Given
-        UserProfileResponse teacher = new UserProfileResponse(
-                "", "teacher1", "Teacher One");
-
         Long id = 1L;
-        MissionGroup group = mock(MissionGroup.class);
-        MissionGroupResponse expectedResponse = MissionGroupResponse
-                .builder()
-                .id(id)
-                .name("Existing Group")
-                .teacher(teacher)
-                .build();
+        User teacherUser = User.createUser("teacher1", "password", "Teacher One", "1234");
+        MissionGroup group = MissionGroup.builder().id(id).name("Existing Group").teacher(teacherUser).build();
 
         when(missionGroupRepository.findByIdWithTeacher(id)).thenReturn(Optional.of(group));
-        when(missionGroupMapper.toMissionGroupResponse(group)).thenReturn(expectedResponse);
 
         // When
         MissionGroupResponse result = missionGroupService.getMissionGroupById(id).get(0);
@@ -191,9 +148,6 @@ class MissionGroupServiceTest {
     @Test
     @DisplayName("미션 그룹을 업데이트한다 - 성공")
     void updateMissionGroup_success() {
-        UserProfileResponse teacherResponse = new UserProfileResponse(
-                "", "teacher", "teacher");
-
         Long id = 1L;
         // Given
         User teacher = User.createUser("teacher", "1234", "teacher", "1234");
@@ -210,16 +164,14 @@ class MissionGroupServiceTest {
                 .name("Original Group")
                 .build();
 
-        MissionGroupResponse expectedResponse = MissionGroupResponse
-                .builder()
+        MissionGroup updatedGroup = MissionGroup.builder()
                 .id(id)
+                .teacher(teacher)
                 .name("Updated Group")
-                .teacher(teacherResponse)
                 .build();
 
         when(missionGroupRepository.findById(id)).thenReturn(Optional.of(existingGroup));
-        when(missionGroupRepository.save(any())).thenReturn(existingGroup);
-        when(missionGroupMapper.toMissionGroupResponse(any())).thenReturn(expectedResponse);
+        when(missionGroupRepository.save(any())).thenReturn(updatedGroup);
         when(userRepository.findByUsername("teacher")).thenReturn(Optional.of(teacher));
 
         // When
@@ -425,16 +377,17 @@ class MissionGroupServiceTest {
     @DisplayName("유저 이름과 그룹 ID로 유저 미션 목록 조회 - 성공")
     void findUserMissionByUsernameAndMissionGroup_Success() {
         // given
-        User user = mock(User.class);
-        MissionGroup mockGroup = MissionGroup.builder().id(SAMPLE_GROUP_ID).name("그룹A").build();
+        User user = User.createUser(SAMPLE_USERNAME, "password", "Test User", "1234");
+        User teacherUser = User.createUser("teacher", "password", "Teacher", "1234");
+        MissionGroup mockGroup = MissionGroup.builder().id(SAMPLE_GROUP_ID).name("그룹A").teacher(teacherUser).build();
         UserMissionGroup mockUMG =
                 UserMissionGroup.builder().id(100L).user(user).missionGroup(mockGroup).build();
 
-        // 유저 미션 엔티티와 응답 DTO 준비
-        var entity1 = mock(UserMission.class);
-        var entity2 = mock(UserMission.class);
-        var resp1 = mock(UserMissionResponse.class);
-        var resp2 = mock(UserMissionResponse.class);
+        // 유저 미션 엔티티 준비 (real objects for from() to work)
+        Mission mission1 = Mission.builder().id(1L).name("M1").description("desc1").missionGroup(mockGroup).build();
+        Mission mission2 = Mission.builder().id(2L).name("M2").description("desc2").missionGroup(mockGroup).build();
+        UserMission entity1 = UserMission.builder().id(1L).user(user).mission(mission1).userMissionGroup(mockUMG).progress(UserMissionState.NOT_STARTED).build();
+        UserMission entity2 = UserMission.builder().id(2L).user(user).mission(mission2).userMissionGroup(mockUMG).progress(UserMissionState.NOT_STARTED).build();
 
         given(userRepository.findByUsername(SAMPLE_USERNAME))
                 .willReturn(Optional.of(user));
@@ -444,8 +397,6 @@ class MissionGroupServiceTest {
                 .willReturn(Optional.of(mockUMG));
         given(userMissionRepository.findByUserAndUserMissionGroup(user, mockUMG))
                 .willReturn(List.of(entity1, entity2));
-        given(userMissionMapper.toUserMissionResponse(entity1)).willReturn(resp1);
-        given(userMissionMapper.toUserMissionResponse(entity2)).willReturn(resp2);
 
         // when
         List<UserMissionResponse> result =
@@ -453,8 +404,9 @@ class MissionGroupServiceTest {
                         SAMPLE_USERNAME, SAMPLE_GROUP_ID);
 
         // then
-        assertThat(result).hasSize(2)
-                .containsExactly(resp1, resp2);
+        assertThat(result).hasSize(2);
+        assertEquals("M1", result.get(0).getMission().getName());
+        assertEquals("M2", result.get(1).getMission().getName());
     }
 
     @Test
@@ -509,9 +461,15 @@ class MissionGroupServiceTest {
         // Given
         User user = mock(User.class);
         when(user.getId()).thenReturn(1L);
+        when(user.getPublicProfileImageUrl()).thenReturn(null);
+        when(user.getUsername()).thenReturn(SAMPLE_USERNAME);
+        when(user.getName()).thenReturn("Test");
         when(userRepository.findByUsername(SAMPLE_USERNAME)).thenReturn(Optional.of(user));
-        when(userMissionGroupRepository.findByUserIdWithTeacher(anyLong())).thenReturn(List.of(mock(UserMissionGroup.class)));
-        when(userMissionGroupMapper.toUserMissionGroupResponse(any())).thenReturn(mock(UserMissionGroupResponse.class));
+
+        User teacher = User.createUser("teacher", "password", "Teacher", "1234");
+        MissionGroup mg = MissionGroup.builder().id(1L).name("Group").teacher(teacher).build();
+        UserMissionGroup umg = UserMissionGroup.builder().id(1L).user(user).missionGroup(mg).build();
+        when(userMissionGroupRepository.findByUserIdWithTeacher(anyLong())).thenReturn(List.of(umg));
 
         // when
         List<UserMissionGroupResponse> result = missionGroupService.getMyMissionGroups(SAMPLE_USERNAME);
@@ -548,8 +506,6 @@ class MissionGroupServiceTest {
         when(user2.getPublicProfileImageUrl()).thenReturn("img2");
         when(user2.getUsername()).thenReturn("user2");
         when(user2.getName()).thenReturn("User Two");
-        UserMissionGroup umg1 = mock(UserMissionGroup.class);
-        UserMissionGroup umg2 = mock(UserMissionGroup.class);
         when(missionGroupRepository.findById(groupId)).thenReturn(Optional.of(mockGroup));
         when(userMissionGroupRepository.findUsersByMissionGroup(mockGroup)).thenReturn(List.of(user1, user2));
 

@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.exception.CommentNotFoundException;
 import org.example.hugmeexp.domain.praise.exception.ForbiddenCommentAccessException;
 import org.example.hugmeexp.domain.praise.exception.PraiseNotFoundException;
-import org.example.hugmeexp.domain.praise.mapper.CommentMapper;
 import org.example.hugmeexp.domain.praise.repository.CommentEmojiReactionRepository;
 import org.example.hugmeexp.domain.praise.repository.CommentRepository;
 import org.example.hugmeexp.domain.praise.repository.PraiseRepository;
@@ -36,9 +35,6 @@ class CommentServiceTest {
 
     @Mock
     private PraiseRepository praiseRepository;
-
-    @Mock
-    private CommentMapper commentMapper;
 
     @Mock
     private CommentEmojiReactionRepository commentEmojiReactionRepository;
@@ -85,9 +81,7 @@ class CommentServiceTest {
 
         // mock 설정
         when(praiseRepository.findById(praiseId)).thenReturn(Optional.of(praise));
-        when(commentMapper.toEntity(requestDTO, praise, commentWriter)).thenReturn(comment);
-        when(commentRepository.save(comment)).thenReturn(comment);
-        when(commentMapper.toDTO(comment)).thenReturn(responseDTO);
+        when(commentRepository.save(any(PraiseComment.class))).thenReturn(comment);
 
         // when
         CommentResponse result = commentService.createComment(praiseId, requestDTO, commentWriter);
@@ -100,9 +94,7 @@ class CommentServiceTest {
 
         // 메서드 호출 검증
         verify(praiseRepository).findById(praiseId);
-        verify(commentMapper).toEntity(requestDTO, praise, commentWriter);
-        verify(commentRepository).save(comment);
-        verify(commentMapper).toDTO(comment);
+        verify(commentRepository).save(any(PraiseComment.class));
     }
 
     @Test
@@ -127,7 +119,6 @@ class CommentServiceTest {
 
         // 메서드 호출 검증
         verify(praiseRepository).findById(invalidPraiseId);
-        verifyNoInteractions(commentMapper);
         verifyNoInteractions(commentRepository);
     }
 

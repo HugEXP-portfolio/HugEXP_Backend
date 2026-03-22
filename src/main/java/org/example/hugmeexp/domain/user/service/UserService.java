@@ -8,7 +8,6 @@ import org.example.hugmeexp.domain.user.dto.response.ProfileImageResponse;
 import org.example.hugmeexp.domain.user.dto.response.UserInfoResponse;
 import org.example.hugmeexp.domain.user.dto.response.UserRankResponse;
 import org.example.hugmeexp.domain.user.exception.*;
-import org.example.hugmeexp.domain.user.mapper.UserResponseMapper;
 import org.example.hugmeexp.domain.user.repository.UserRepository;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.springframework.stereotype.Service;
@@ -109,7 +108,7 @@ public class UserService {
 
         int level = calculateLevel(findUser.getExp());
         int nextLevelTotalExp = getNextLevelTotalExp(findUser.getExp());
-        return UserResponseMapper.toUserInfoResponse(findUser, level, nextLevelTotalExp);
+        return UserInfoResponse.from(findUser, level, nextLevelTotalExp);
     }
 
     // 회원 정보 업데이트
@@ -141,7 +140,7 @@ public class UserService {
         // 결과 리턴
         int level = calculateLevel(findUser.getExp());
         int nextLevelTotalExp = getNextLevelTotalExp(findUser.getExp());
-        return UserResponseMapper.toUserInfoResponse(findUser, level, nextLevelTotalExp);
+        return UserInfoResponse.from(findUser, level, nextLevelTotalExp);
     }
 
     // 프로필 이미지 등록
@@ -170,7 +169,7 @@ public class UserService {
         log.info("Profile image updated successfully - user: {} ({}) / image path: {}", user.getUsername(), user.getName(), absolutePath);
 
         // 프로필 이미지 경로 리턴
-        return UserResponseMapper.toProfileImageResponse(findUser);
+        return ProfileImageResponse.from(findUser);
     }
 
     // 프로필 이미지 삭제

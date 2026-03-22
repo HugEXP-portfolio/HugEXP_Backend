@@ -10,7 +10,6 @@ import org.example.hugmeexp.domain.praise.entity.PraiseEmojiReaction;
 import org.example.hugmeexp.domain.praise.entity.PraiseReceiver;
 import org.example.hugmeexp.domain.praise.enums.PraiseType;
 import org.example.hugmeexp.domain.praise.exception.PraiseNotFoundException;
-import org.example.hugmeexp.domain.praise.mapper.PraiseMapper;
 import org.example.hugmeexp.domain.praise.repository.*;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.domain.user.repository.UserRepository;
@@ -36,9 +35,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PraiseServiceTest {
-
-    @Mock
-    private PraiseMapper praiseMapper;
 
     @Mock
     private PraiseRepository praiseRepository;
@@ -178,8 +174,7 @@ public class PraiseServiceTest {
 
     // 칭찬 생성 테스트를 위한 mock 설정 헬퍼 메소드
     private void setupMocksForCreatePraise(PraiseRequest requestDTO, Praise praise) {
-        when(praiseMapper.toEntity(requestDTO, sender)).thenReturn(praise);
-        when(praiseRepository.save(praise)).thenReturn(praise);
+        when(praiseRepository.save(any(Praise.class))).thenReturn(praise);
         when(userRepository.findByUsername(receiver1.getUsername())).thenReturn(Optional.of(receiver1));
         when(userRepository.findByUsername(receiver2.getUsername())).thenReturn(Optional.of(receiver2));
     }

@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.hugmeexp.domain.user.dto.response.UserInfoResponse;
+import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.domain.user.enums.UserRole;
 
 /**
@@ -22,4 +24,16 @@ public class AdminUserAllResponse {
     private UserRole role;
     private int level;
     private int point;
+
+    public static AdminUserAllResponse from(User user, UserInfoResponse userInfo) {
+        return new AdminUserAllResponse(
+                user.getId(),
+                user.getPublicProfileImageUrl(),
+                user.getUsername(),
+                user.getName(),
+                user.getRole(),
+                userInfo.getLevel(),
+                userInfo.getPoint()
+        );
+    }
 }

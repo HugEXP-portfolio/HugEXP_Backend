@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.example.hugmeexp.domain.studyRoom.entity.StudyHall;
 
 import java.time.LocalTime;
 
@@ -24,4 +25,19 @@ public class StudyHallResponse {
     private final String thumbnail;
     private final LocalTime openTime;
     private final LocalTime closeTime;
+
+    public static StudyHallResponse from(StudyHall studyHall) {
+        return StudyHallResponse.builder()
+                .id(studyHall.getId())
+                .name(studyHall.getName())
+                .description(studyHall.getDescription())
+                .simpleAddress(studyHall.getSimpleAddress())
+                .address(studyHall.getAddress())
+                .latitude(studyHall.getLatitude())
+                .longitude(studyHall.getLongitude())
+                .thumbnail(studyHall.getThumbnail())
+                .openTime(studyHall.getOpenTime())
+                .closeTime(studyHall.getCloseTime())
+                .build();
+    }
 }

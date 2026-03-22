@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.qeust.dto.response.UserQuestResponse;
 import org.example.hugmeexp.domain.qeust.entity.UserQuest;
 import org.example.hugmeexp.domain.qeust.enums.QuestType;
 import org.example.hugmeexp.domain.qeust.exception.NoSuchQuestException;
-import org.example.hugmeexp.domain.qeust.mapper.UserQuestMapper;
 import org.example.hugmeexp.domain.qeust.repository.UserQuestRepository;
 import org.example.hugmeexp.domain.qeust.validator.QuestValidator;
 import org.example.hugmeexp.domain.qeust.validator.QuestValidatorFactory;
@@ -30,7 +29,6 @@ public class QuestService {
     private final UserService userService;
 
     private final QuestValidatorFactory questValidatorFactory;
-    private final UserQuestMapper userQuestMapper;
 
     /**
      * 사용자에게 할당된 퀘스트 조회 메서드
@@ -47,7 +45,7 @@ public class QuestService {
         }
 
         return userQuests.stream()
-                .map(userQuestMapper::toResponse)
+                .map(UserQuestResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +68,7 @@ public class QuestService {
         userService.increasePoint(completeUser, 50);
         userService.increaseExp(completeUser, 10);
         UserQuest savedUserQuest = userQuestRepository.save(userQuest);
-        return userQuestMapper.toResponse(savedUserQuest);
+        return UserQuestResponse.from(savedUserQuest);
     }
 
     private void checkCondition(UserQuest userQuest) {

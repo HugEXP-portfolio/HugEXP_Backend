@@ -9,9 +9,7 @@ import org.example.hugmeexp.domain.shop.dto.request.PurchaseRequest;
 import org.example.hugmeexp.domain.shop.dto.response.PurchaseResponse;
 import org.example.hugmeexp.domain.shop.entity.Order;
 import org.example.hugmeexp.domain.shop.entity.Product;
-import org.example.hugmeexp.domain.shop.entity.ProductImage;
 import org.example.hugmeexp.domain.shop.exception.*;
-import org.example.hugmeexp.domain.shop.mapper.ProductMapper;
 import org.example.hugmeexp.domain.shop.repository.OrderRepository;
 import org.example.hugmeexp.domain.shop.repository.ProductRepository;
 import org.example.hugmeexp.domain.user.repository.UserRepository;
@@ -31,7 +29,6 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProductMapper productMapper;
 
     /**
      * 전체 상품 조회 메서드
@@ -42,9 +39,9 @@ public class ProductService {
 
         log.info("전체 상품 조회 요청");
 
-        // 삭제되지 않은 상품들에 대해 Product -> ProductResonse 변환
+        // 삭제되지 않은 상품들에 대해 Product -> ProductResponse 변환
         List<ProductResponse> response = productRepository.findAllByIsDeletedFalse().stream()
-                .map(productMapper::toResponse)
+                .map(ProductResponse::from)
                 .collect(Collectors.toList());
 
         // 로그인한 사용자가 구매 가능한 상품인지 설정
@@ -111,15 +108,7 @@ public class ProductService {
         userRepository.save(purchaser);
         productRepository.save(product);
 
-        PurchaseResponse response = PurchaseResponse.builder()
-                .purchaserName(purchaser.getName())
-                .remainingPoint(purchaser.getPoint())
-                .productName(product.getName())
-                .productQuantity(product.getQuantity())
-                .phoneNumber(order.getReceiverPhoneNumber())
-                .purchaseTime(order.getCreatedAt())
-                .build();
-        return response;
+        return PurchaseResponse.from(purchaser, product, order);
     }
 
     /**
@@ -140,32 +129,7 @@ public class ProductService {
 
         // Order -> OrderResponse 변환 후 반환
         return orders.stream()
-                .map(this::toOrderResponse)
+                .map(OrderResponse::from)
                 .collect(Collectors.toList());
-    }
-
-
-    // ===== private method =====
-    private OrderResponse toOrderResponse(Order order) {
-
-        Product product = order.getProduct();
-        ProductImage image = product.getProductImage();
-
-        String fullPath = null;
-        if (image != null) {
-            fullPath = image.getPath() + "/" + image.getUuid() + "." + image.getExtension();
-            // "/application" 제거
-            if (fullPath.startsWith("/application")) {
-                fullPath = fullPath.substring("/application".length());
-            }
-        }
-        return OrderResponse.builder()
-                .imageUrl(fullPath)
-                .brand(product.getBrand())
-                .name(product.getName())
-                .price(String.format("%d 포인트", product.getPrice()))
-                .orderTime(order.getCreatedAt())
-                .receiverPhoneNumber(order.getReceiverPhoneNumber())
-                .build();
     }
 }

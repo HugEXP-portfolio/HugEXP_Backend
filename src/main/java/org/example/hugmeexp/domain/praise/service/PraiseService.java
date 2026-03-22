@@ -14,7 +14,6 @@ import org.example.hugmeexp.domain.praise.entity.*;
 import org.example.hugmeexp.domain.praise.enums.PraiseType;
 import org.example.hugmeexp.domain.praise.exception.PraiseNotFoundException;
 import org.example.hugmeexp.domain.praise.exception.UserNotFoundInPraiseException;
-import org.example.hugmeexp.domain.praise.mapper.PraiseMapper;
 import org.example.hugmeexp.domain.praise.repository.*;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
 import org.example.hugmeexp.domain.user.repository.UserRepository;
@@ -37,7 +36,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class PraiseService {
 
-    private final PraiseMapper praiseMapper;
     private final PraiseRepository praiseRepository;
     private final CommentRepository commentRepository;
     private final PraiseEmojiReactionRepository praiseEmojiReactionRepository;
@@ -58,7 +56,11 @@ public class PraiseService {
                         .orElseThrow(UserNotFoundInPraiseException::new)).toList();
 
         // DTO -> Entity
-         Praise praise = praiseMapper.toEntity(praiseRequestDTO, sender);
+        Praise praise = Praise.builder()
+                .sender(sender)
+                .content(praiseRequestDTO.getContent())
+                .praiseType(praiseRequestDTO.getType())
+                .build();
 
         // DB 에 저장
         Praise saved = praiseRepository.save(praise);

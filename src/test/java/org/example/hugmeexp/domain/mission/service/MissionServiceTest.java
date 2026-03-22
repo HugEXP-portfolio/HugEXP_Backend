@@ -5,11 +5,11 @@ import org.example.hugmeexp.domain.mission.dto.response.MissionResponse;
 import org.example.hugmeexp.domain.mission.entity.*;
 import org.example.hugmeexp.domain.mission.enums.Difficulty;
 import org.example.hugmeexp.domain.mission.exception.*;
-import org.example.hugmeexp.domain.mission.mapper.MissionMapper;
 import org.example.hugmeexp.domain.mission.repository.*;
 import org.example.hugmeexp.domain.missionGroup.entity.MissionGroup;
 import org.example.hugmeexp.domain.missionGroup.exception.MissionGroupNotFoundException;
 import org.example.hugmeexp.domain.missionGroup.repository.MissionGroupRepository;
+import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.global.common.service.CacheService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,9 +37,6 @@ class MissionServiceTest {
     private MissionGroupRepository missionGroupRepository;
 
     @Mock
-    private MissionMapper missionMapper;
-
-    @Mock
     private CacheService cacheService;
 
     @InjectMocks
@@ -48,6 +45,8 @@ class MissionServiceTest {
 
     private final Long SAMPLE_ID = 1L;
     private final String SAMPLE_NAME = "샘플 미션";
+    private final User SAMPLE_TEACHER = User.builder().username("teacher").name("Teacher").build();
+    private final MissionGroup SAMPLE_GROUP = MissionGroup.builder().id(SAMPLE_ID).name("그룹").teacher(SAMPLE_TEACHER).build();
 
     private final MissionRequest SAMPLE_REQUEST = MissionRequest.builder()
             .name("미션명")
@@ -65,20 +64,16 @@ class MissionServiceTest {
     @DisplayName("미션을 정상적으로 생성한다 - 성공")
     void createMission_Success() {
         // Given
-        MissionGroup group = MissionGroup.builder().id(SAMPLE_ID).build();
-        Mission mission = Mission.builder().id(SAMPLE_ID).build();
-        MissionResponse expectedResponse = MissionResponse.builder().id(SAMPLE_ID).name(SAMPLE_NAME).build();
+        Mission mission = Mission.builder().id(SAMPLE_ID).missionGroup(SAMPLE_GROUP).build();
 
-        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(group));
-        when(missionMapper.toEntity(SAMPLE_REQUEST)).thenReturn(mission);
+        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(SAMPLE_GROUP));
         when(missionRepository.save(any(Mission.class))).thenReturn(mission);
-        when(missionMapper.toMissionResponse(mission)).thenReturn(expectedResponse);
 
         // When
         MissionResponse result = missionService.createMission(SAMPLE_REQUEST);
 
         // Then
-        assertThat(result).isEqualTo(expectedResponse);
+        assertThat(result.getId()).isEqualTo(SAMPLE_ID);
         verify(missionRepository).save(any(Mission.class));
     }
 
@@ -98,17 +93,15 @@ class MissionServiceTest {
     @DisplayName("ID로 미션을 정상적으로 조회한다 - 성공")
     void getMissionById_Success() {
         // Given
-        Mission mission = Mission.builder().id(SAMPLE_ID).build();
-        MissionResponse expectedResponse = MissionResponse.builder().id(SAMPLE_ID).name(SAMPLE_NAME).build();
+        Mission mission = Mission.builder().id(SAMPLE_ID).missionGroup(SAMPLE_GROUP).build();
 
         when(missionRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(mission));
-        when(missionMapper.toMissionResponse(mission)).thenReturn(expectedResponse);
 
         // When
         MissionResponse result = missionService.getMissionById(SAMPLE_ID);
 
         // Then
-        assertThat(result).isEqualTo(expectedResponse);
+        assertThat(result.getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test
@@ -126,20 +119,17 @@ class MissionServiceTest {
     @DisplayName("모든 미션을 정상적으로 조회한다 - 성공")
     void getAllMissions_Success() {
         // Given
-        Mission sampleMission = Mission.builder().id(SAMPLE_ID).build();
+        Mission sampleMission = Mission.builder().id(SAMPLE_ID).missionGroup(SAMPLE_GROUP).build();
         List<Mission> missionList = List.of(sampleMission);
-        MissionResponse sampleResponse = MissionResponse.builder().id(SAMPLE_ID).name(SAMPLE_NAME).build();
 
         when(missionRepository.findAll()).thenReturn(missionList);
-        when(missionMapper.toMissionResponse(sampleMission)).thenReturn(sampleResponse);
 
         // When
         List<MissionResponse> result = missionService.getAllMissions();
 
         // Then
-        assertThat(result)
-                .hasSize(1)
-                .containsExactly(sampleResponse);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test
@@ -162,6 +152,7 @@ class MissionServiceTest {
         Mission existingMission = Mission.builder()
                 .id(SAMPLE_ID)
                 .name("기존 이름")
+                .missionGroup(SAMPLE_GROUP)
                 .build();
 
         Mission updatedMission = Mission.builder()
@@ -173,19 +164,17 @@ class MissionServiceTest {
                 .rewardExp(SAMPLE_REQUEST.getRewardExp())
                 .order(SAMPLE_REQUEST.getOrder())
                 .tip(SAMPLE_REQUEST.getTip())
+                .missionGroup(SAMPLE_GROUP)
                 .build();
-
-        MissionResponse expectedResponse = MissionResponse.builder().id(SAMPLE_ID).name("미션명").build();
 
         when(missionRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(existingMission));
         when(missionRepository.save(any(Mission.class))).thenReturn(updatedMission);
-        when(missionMapper.toMissionResponse(updatedMission)).thenReturn(expectedResponse);
 
         // When
         MissionResponse result = missionService.updateMission(SAMPLE_ID, SAMPLE_REQUEST);
 
         // Then
-        assertThat(result).isEqualTo(expectedResponse);
+        assertThat(result.getId()).isEqualTo(SAMPLE_ID);
         verify(missionRepository).save(argThat(m -> {
             assertThat(m.getName()).isEqualTo("미션명");
             assertThat(m.getDescription()).isEqualTo("미션 설명");
@@ -238,8 +227,8 @@ class MissionServiceTest {
     @DisplayName("미션 그룹을 정상적으로 변경한다 - 성공")
     void changeMissionGroup_Success() {
         // Given
-        MissionGroup oldGroup = MissionGroup.builder().id(1L).build();
-        MissionGroup newGroup = MissionGroup.builder().id(2L).build();
+        MissionGroup oldGroup = MissionGroup.builder().id(1L).teacher(SAMPLE_TEACHER).build();
+        MissionGroup newGroup = MissionGroup.builder().id(2L).teacher(SAMPLE_TEACHER).build();
 
         Mission existingMission = Mission.builder()
                 .id(SAMPLE_ID)
@@ -259,13 +248,12 @@ class MissionServiceTest {
         when(missionRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(existingMission));
         when(missionGroupRepository.findById(2L)).thenReturn(Optional.of(newGroup));
         when(missionRepository.save(any(Mission.class))).thenReturn(updatedMission);
-        when(missionMapper.toMissionResponse(updatedMission)).thenReturn(expectedResponse);
 
         // When
         MissionResponse result = missionService.changeMissionGroup(SAMPLE_ID, 2L);
 
         // Then
-        assertThat(result).isEqualTo(expectedResponse);
+        assertThat(result.getId()).isEqualTo(SAMPLE_ID);
         verify(missionRepository).save(argThat(m -> {
             assertThat(m.getMissionGroup().getId()).isEqualTo(2L);
             return true;
@@ -290,33 +278,25 @@ class MissionServiceTest {
     @DisplayName("특정 그룹의 미션들을 정상적으로 조회한다 - 성공")
     void getMissionsByMissionGroupId_Success() {
         // Given
-        MissionGroup group = MissionGroup.builder().id(SAMPLE_ID).build();
-        Mission mission = Mission.builder().id(SAMPLE_ID).build();
-        MissionResponse response = MissionResponse.builder()
-                .id(SAMPLE_ID)
-                .name(SAMPLE_NAME)
-                .build();
+        Mission mission = Mission.builder().id(SAMPLE_ID).missionGroup(SAMPLE_GROUP).build();
 
-        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(group));
-        when(missionRepository.findMissionByMissionGroup(group)).thenReturn(List.of(mission));
-        when(missionMapper.toMissionResponse(mission)).thenReturn(response);
+        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(SAMPLE_GROUP));
+        when(missionRepository.findMissionByMissionGroup(SAMPLE_GROUP)).thenReturn(List.of(mission));
 
         // When
         List<MissionResponse> result = missionService.getMissionsByMissionGroupId(SAMPLE_ID);
 
         // Then
-        assertThat(result)
-                .hasSize(1)
-                .containsExactly(response);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test
     @DisplayName("미션이 없는 그룹 조회 시 빈 목록 반환 - 성공")
     void getMissionsByMissionGroupId_EmptyGroup_Success() {
         // Given
-        MissionGroup group = MissionGroup.builder().id(SAMPLE_ID).build();
-        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(group));
-        when(missionRepository.findMissionByMissionGroup(group)).thenReturn(Collections.emptyList());
+        when(missionGroupRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(SAMPLE_GROUP));
+        when(missionRepository.findMissionByMissionGroup(SAMPLE_GROUP)).thenReturn(Collections.emptyList());
 
         // When
         List<MissionResponse> result = missionService.getMissionsByMissionGroupId(SAMPLE_ID);

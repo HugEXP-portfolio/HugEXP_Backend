@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.praise.dto.response.PraiseEmojiReactionRespon
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseEmojiReaction;
 import org.example.hugmeexp.domain.praise.exception.*;
-import org.example.hugmeexp.domain.praise.mapper.PraiseEmojiReactionMapper;
 import org.example.hugmeexp.domain.praise.repository.PraiseEmojiReactionRepository;
 import org.example.hugmeexp.domain.praise.repository.PraiseRepository;
 import org.example.hugmeexp.domain.praise.util.EmojiUtil;
@@ -25,7 +24,6 @@ public class PraiseEmojiReactionService {
 
     private final PraiseEmojiReactionRepository praiseEmojiReactionRepository;
     private final PraiseRepository praiseRepository;
-    private final PraiseEmojiReactionMapper praiseEmojiReactionMapper;
 
     /* 이모지 유효성 검사 */
     private boolean isValidEmoji(String input) {
@@ -52,7 +50,11 @@ public class PraiseEmojiReactionService {
         }
 
         // 이모지 생성
-        PraiseEmojiReaction praiseEmojiReaction = praiseEmojiReactionMapper.toEntity(praise,user,praiseEmojiReactionRequestDTO);
+        PraiseEmojiReaction praiseEmojiReaction = PraiseEmojiReaction.builder()
+                .praise(praise)
+                .reactorWriter(user)
+                .emoji(praiseEmojiReactionRequestDTO.getEmoji())
+                .build();
 
         // 저장
         PraiseEmojiReaction saved = praiseEmojiReactionRepository.save(praiseEmojiReaction);

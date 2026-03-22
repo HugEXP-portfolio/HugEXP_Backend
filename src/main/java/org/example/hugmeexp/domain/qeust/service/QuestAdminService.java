@@ -12,8 +12,6 @@ import org.example.hugmeexp.domain.qeust.enums.QuestType;
 import org.example.hugmeexp.domain.qeust.exception.QuestDeletedException;
 import org.example.hugmeexp.domain.qeust.exception.QuestNotFoundException;
 import org.example.hugmeexp.domain.qeust.exception.UserNotFoundInQuestException;
-import org.example.hugmeexp.domain.qeust.mapper.QuestMapper;
-import org.example.hugmeexp.domain.qeust.mapper.UserQuestMapper;
 import org.example.hugmeexp.domain.qeust.repository.QuestRepository;
 import org.example.hugmeexp.domain.qeust.repository.UserQuestRepository;
 import org.example.hugmeexp.domain.shop.exception.ProductDeletedException;
@@ -33,8 +31,6 @@ public class QuestAdminService {
     private final UserRepository userRepository;
     private final UserQuestRepository userQuestRepository;
 
-    private final QuestMapper questMapper;
-    private final UserQuestMapper userQuestMapper;
 
     /**
      * 퀘스트 생성 메서드
@@ -44,13 +40,17 @@ public class QuestAdminService {
     @Transactional
     public QuestResponse createQuest(QuestRequest request) {
 
-        Quest quest = questMapper.toEntity(request);
+        Quest quest = Quest.builder()
+                .name(request.getName())
+                .url(request.getUrl())
+                .type(request.getType())
+                .build();
         log.info("변환된 Quest Entity:{}", quest.getName());
 
-        questRepository.save(quest);
+        Quest savedQuest = questRepository.save(quest);
 
         // 응답 DTO로 매핑하여 반환
-        return questMapper.toResponse(quest);
+        return QuestResponse.from(savedQuest);
     }
 
     /**
@@ -91,7 +91,7 @@ public class QuestAdminService {
         // 수정된 퀘스트를 응답 DTO로 매핑하여 반환
         quest.updateQuest(request);
         Quest modifiedQuest = questRepository.save(quest);
-        return questMapper.toResponse(modifiedQuest);
+        return QuestResponse.from(modifiedQuest);
     }
 
     /**
@@ -117,7 +117,7 @@ public class QuestAdminService {
         for (Quest quest : allQuests) {
             UserQuest userQuest = UserQuest.createUserQuest(user, quest);
             UserQuest savedUserQuest = userQuestRepository.save(userQuest);
-            response.add(userQuestMapper.toResponse(savedUserQuest));
+            response.add(UserQuestResponse.from(savedUserQuest));
         }
 
         return response;
@@ -147,7 +147,11 @@ public class QuestAdminService {
         };
 
         for (QuestRequest request : requests) {
-            questRepository.save(questMapper.toEntity(request));
+            questRepository.save(Quest.builder()
+                    .name(request.getName())
+                    .url(request.getUrl())
+                    .type(request.getType())
+                    .build());
         }
     }
 }

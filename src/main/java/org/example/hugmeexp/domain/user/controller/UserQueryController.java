@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
 import org.example.hugmeexp.domain.user.entity.User;
-import org.example.hugmeexp.domain.user.mapper.UserResponseMapper;
 import org.example.hugmeexp.domain.user.service.UserService;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +39,7 @@ public class UserQueryController {
         else users = userService.findByNameContaining(name); // 이름 포함 검색
 
         List<UserProfileResponse> result = users.stream()
-                .map(UserResponseMapper::toUserProfileResponse)
+                .map(UserProfileResponse::from)
                 .toList();
 
 

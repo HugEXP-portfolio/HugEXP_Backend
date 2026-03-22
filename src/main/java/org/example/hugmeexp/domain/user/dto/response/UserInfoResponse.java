@@ -1,6 +1,7 @@
 package org.example.hugmeexp.domain.user.dto.response;
 
 import lombok.Getter;
+import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.domain.user.enums.UserRole;
 
 @Getter
@@ -26,5 +27,19 @@ public class UserInfoResponse {
         this.nextLevelTotalExp = nextLevelTotalExp;
         this.currentTotalExp = currentTotalExp;
         this.point = point;
+    }
+
+    public static UserInfoResponse from(User user, int level, int nextLevelTotalExp) {
+        return new UserInfoResponse(
+                user.getPublicProfileImageUrl(),
+                user.getName(),
+                user.getDescription(),
+                user.getPhoneNumber(),
+                user.getRole(),
+                level,
+                nextLevelTotalExp,
+                user.getExp(),
+                user.getPoint()
+        );
     }
 }

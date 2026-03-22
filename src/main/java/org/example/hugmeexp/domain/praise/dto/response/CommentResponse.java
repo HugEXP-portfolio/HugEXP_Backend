@@ -8,6 +8,7 @@ import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,5 +40,9 @@ public class CommentResponse {
                 .emojiReactions(emojiReactions)
                 .createdAt(comment.getCreatedAt())
                 .build();
+    }
+
+    public static CommentResponse from(PraiseComment comment) {
+        return from(comment, Collections.emptyMap());
     }
 }

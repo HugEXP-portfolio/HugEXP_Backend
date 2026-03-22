@@ -9,8 +9,6 @@ import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.exception.AlreadyExistsUserMissionException;
 import org.example.hugmeexp.domain.mission.exception.MissionNotFoundException;
 import org.example.hugmeexp.domain.mission.exception.UserMissionNotFoundException;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionMapper;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionStateLogMapper;
 import org.example.hugmeexp.domain.mission.repository.*;
 import org.example.hugmeexp.domain.missionGroup.entity.MissionGroup;
 import org.example.hugmeexp.domain.missionGroup.entity.UserMissionGroup;
@@ -26,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -54,13 +53,7 @@ class UserMissionServiceTest {
     private UserMissionGroupRepository userMissionGroupRepository;
 
     @Mock
-    private UserMissionMapper userMissionMapper;
-
-    @Mock
     private CacheService cacheService;
-
-    @Mock
-    private UserMissionStateLogMapper userMissionStateLogMapper;
 
     @InjectMocks
     private UserMissionServiceImpl userMissionService;
@@ -106,25 +99,26 @@ class UserMissionServiceTest {
                 .thenReturn(Optional.of(omg));
         when(userMissionRepository.save(any(UserMission.class)))
                 .thenReturn(savedUm);
-        when(userMissionMapper.toUserMissionResponse(savedUm))
-                .thenReturn(expectedRes);
 
-        // when
-        UserMissionResponse actual = userMissionService.challengeMission(username, missionId);
+        try (MockedStatic<UserMissionResponse> mockedStatic = mockStatic(UserMissionResponse.class)) {
+            mockedStatic.when(() -> UserMissionResponse.from(savedUm)).thenReturn(expectedRes);
 
-        // then
-        assertThat(actual).isEqualTo(expectedRes);
+            // when
+            UserMissionResponse actual = userMissionService.challengeMission(username, missionId);
 
-        // Repository.save() 로 넘겨진 UserMission 의 상태 검증
-        ArgumentCaptor<UserMission> captor = ArgumentCaptor.forClass(UserMission.class);
-        verify(userMissionRepository).save(captor.capture());
-        UserMission toSave = captor.getValue();
-        assertThat(toSave.getUser()).isSameAs(user);
-        assertThat(toSave.getMission()).isSameAs(mission);
-        assertThat(toSave.getUserMissionGroup()).isSameAs(omg);
-        assertThat(toSave.getProgress()).isEqualTo(UserMissionState.NOT_STARTED);
+            // then
+            assertThat(actual.getId()).isEqualTo(40L);
+            assertThat(actual.getProgress()).isEqualTo(UserMissionState.NOT_STARTED);
 
-        verify(userMissionMapper).toUserMissionResponse(savedUm);
+            // Repository.save() 로 넘겨진 UserMission 의 상태 검증
+            ArgumentCaptor<UserMission> captor = ArgumentCaptor.forClass(UserMission.class);
+            verify(userMissionRepository).save(captor.capture());
+            UserMission toSave = captor.getValue();
+            assertThat(toSave.getUser()).isSameAs(user);
+            assertThat(toSave.getMission()).isSameAs(mission);
+            assertThat(toSave.getUserMissionGroup()).isSameAs(omg);
+            assertThat(toSave.getProgress()).isEqualTo(UserMissionState.NOT_STARTED);
+        }
     }
 
     @Test
@@ -234,25 +228,30 @@ class UserMissionServiceTest {
         LocalDate startDate = LocalDate.of(2023, 1, 1);
         LocalDate endDate = LocalDate.of(2023, 12, 31);
 
+        UserMissionStateLog log1 = mock(UserMissionStateLog.class);
+        UserMissionStateLog log2 = mock(UserMissionStateLog.class);
+
         when(userMissionStateLogRepository.findByUserIdAndCreatedAtBetween(
                 anyLong(),
                 any(LocalDateTime.class),
                 any(LocalDateTime.class)
 
-        )).thenReturn(List.of(
-                mock(UserMissionStateLog.class),
-                mock(UserMissionStateLog.class)
-        ));
+        )).thenReturn(List.of(log1, log2));
 
-        when(userMissionStateLogMapper.toUserMissionStateLogResponse(any(UserMissionStateLog.class)))
-                .thenReturn(mock(UserMissionStateLogResponse.class));
+        UserMissionStateLogResponse response1 = mock(UserMissionStateLogResponse.class);
+        UserMissionStateLogResponse response2 = mock(UserMissionStateLogResponse.class);
 
-        // when
-        List<UserMissionStateLogResponse> logs = userMissionService.getAllMissionStateLog(userId, startDate, endDate);
+        try (MockedStatic<UserMissionStateLogResponse> mockedStatic = mockStatic(UserMissionStateLogResponse.class)) {
+            mockedStatic.when(() -> UserMissionStateLogResponse.from(log1)).thenReturn(response1);
+            mockedStatic.when(() -> UserMissionStateLogResponse.from(log2)).thenReturn(response2);
 
-        assertThat(logs).hasSize(2);
+            // when
+            List<UserMissionStateLogResponse> logs = userMissionService.getAllMissionStateLog(userId, startDate, endDate);
+
+            assertThat(logs).hasSize(2);
+        }
     }
-    
+
     @Test
     @DisplayName("유저 미션을 가져온다 - 성공")
     void getUserMission_Success() {
@@ -268,13 +267,16 @@ class UserMissionServiceTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
         when(missionRepository.findById(missionId)).thenReturn(Optional.of(mission));
         when(userMissionRepository.findByUserAndMission(user, mission)).thenReturn(Optional.of(userMission));
-        when(userMissionMapper.toUserMissionResponse(userMission)).thenReturn(expectedResponse);
 
-        // when
-        UserMissionResponse actualResponse = userMissionService.getUserMission(missionId, username);
+        try (MockedStatic<UserMissionResponse> mockedStatic = mockStatic(UserMissionResponse.class)) {
+            mockedStatic.when(() -> UserMissionResponse.from(userMission)).thenReturn(expectedResponse);
 
-        // then
-        assertThat(actualResponse).isEqualTo(expectedResponse);
+            // when
+            UserMissionResponse actualResponse = userMissionService.getUserMission(missionId, username);
+
+            // then
+            assertThat(actualResponse).isEqualTo(expectedResponse);
+        }
     }
 
     @Test
@@ -324,19 +326,24 @@ class UserMissionServiceTest {
         User teacher = mock(User.class);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(teacher));
 
-        List<UserMission> userMissions = List.of(mock(UserMission.class), mock(UserMission.class));
+        UserMission um1 = mock(UserMission.class);
+        UserMission um2 = mock(UserMission.class);
+        List<UserMission> userMissions = List.of(um1, um2);
         when(userMissionRepository.findAllByMission_MissionGroup_Teacher(teacher)).thenReturn(userMissions);
 
         UserMissionResponse response1 = mock(UserMissionResponse.class);
         UserMissionResponse response2 = mock(UserMissionResponse.class);
-        when(userMissionMapper.toUserMissionResponse(userMissions.get(0))).thenReturn(response1);
-        when(userMissionMapper.toUserMissionResponse(userMissions.get(1))).thenReturn(response2);
 
-        // when
-        List<UserMissionResponse> responses = userMissionService.getAllUserMissionsByTeacher(username);
+        try (MockedStatic<UserMissionResponse> mockedStatic = mockStatic(UserMissionResponse.class)) {
+            mockedStatic.when(() -> UserMissionResponse.from(um1)).thenReturn(response1);
+            mockedStatic.when(() -> UserMissionResponse.from(um2)).thenReturn(response2);
 
-        // then
-        assertThat(responses).containsExactly(response1, response2);
+            // when
+            List<UserMissionResponse> responses = userMissionService.getAllUserMissionsByTeacher(username);
+
+            // then
+            assertThat(responses).containsExactly(response1, response2);
+        }
     }
 
     @Test
@@ -359,13 +366,16 @@ class UserMissionServiceTest {
         when(userMissionRepository.findById(challengeId)).thenReturn(Optional.of(userMission));
 
         UserMissionResponse expectedResponse = mock(UserMissionResponse.class);
-        when(userMissionMapper.toUserMissionResponse(userMission)).thenReturn(expectedResponse);
 
-        // when
-        UserMissionResponse actualResponse = userMissionService.getUserMissionByChallengeId(challengeId);
+        try (MockedStatic<UserMissionResponse> mockedStatic = mockStatic(UserMissionResponse.class)) {
+            mockedStatic.when(() -> UserMissionResponse.from(userMission)).thenReturn(expectedResponse);
 
-        // then
-        assertThat(actualResponse).isEqualTo(expectedResponse);
+            // when
+            UserMissionResponse actualResponse = userMissionService.getUserMissionByChallengeId(challengeId);
+
+            // then
+            assertThat(actualResponse).isEqualTo(expectedResponse);
+        }
     }
 
     @Test
