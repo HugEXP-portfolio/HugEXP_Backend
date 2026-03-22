@@ -78,13 +78,21 @@
 
 ---
 
-## 앞으로 할 리팩토링 (TODO)
+## PraiseService 코드 중복 제거
 
-### PraiseService 코드 중복 제거
-- **우선순위**: 중간
-- **현재 문제**: 이모지 반응 그룹핑 로직이 4곳에서 동일하게 반복, 댓글 프로필 변환도 2곳 중복
-- **목표**: 중복 로직을 private 메서드로 추출
-- **영향 범위**: PraiseService (361줄)
+- **Before**: 이모지 반응 그룹핑 로직이 4곳에서 동일하게 반복, 댓글 프로필 변환도 2곳에서 `new UserProfileResponse(...)` 직접 생성
+- **After**: `groupEmojiReactions()`, `toCommentProfiles()` private 메서드로 추출. `UserProfileResponse.from()` 활용
+- **Why**: 동일 로직 반복 제거, 이전 RF-004에서 추가한 `from()` 패턴과 일관성 확보
+- **Category**: 코드 중복 제거
+- **변경 파일**: PraiseService.java (363줄 → 332줄)
+- **변경 내용**:
+  - `groupEmojiReactions(List<PraiseEmojiReaction>)` — 이모지 그룹핑 4곳 → 1곳
+  - `toCommentProfiles(List<PraiseComment>)` — 댓글 프로필 변환 2곳 → 1곳
+  - `getRecentPraiseSenders` — `new UserProfileResponse(...)` → `UserProfileResponse.from()` 통일
+
+---
+
+## 앞으로 할 리팩토링 (TODO)
 
 ### 매직 넘버 상수 추출
 - **우선순위**: 낮음
