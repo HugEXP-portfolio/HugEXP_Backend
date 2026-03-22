@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class ReservationAlreadyStartedException extends BaseCustomException {
+public class ReservationAlreadyStartedException extends BaseException {
     public ReservationAlreadyStartedException() {
-        super(HttpStatus.BAD_REQUEST, "이미 시작된 예약은 취소할 수 없습니다.", 400);
+        super(ErrorStatus.RESERVATION_ALREADY_STARTED);
     }
 }

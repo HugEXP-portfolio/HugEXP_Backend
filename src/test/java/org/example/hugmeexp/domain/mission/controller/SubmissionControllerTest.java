@@ -10,7 +10,7 @@ import org.example.hugmeexp.domain.mission.exception.SubmissionNotFoundException
 import org.example.hugmeexp.domain.mission.exception.UserMissionNotFoundException;
 import org.example.hugmeexp.domain.mission.service.SubmissionService;
 import org.example.hugmeexp.domain.mission.util.FileUploadUtils;
-import org.example.hugmeexp.global.common.exception.ExceptionController;
+import org.example.hugmeexp.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -65,7 +65,7 @@ class SubmissionControllerTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(submissionController)
-                .setControllerAdvice(new ExceptionController())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
     }

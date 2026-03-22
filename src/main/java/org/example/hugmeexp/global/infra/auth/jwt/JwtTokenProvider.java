@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.example.hugmeexp.domain.user.enums.UserRole;
-import org.example.hugmeexp.global.common.exception.ErrorCode;
+import org.example.hugmeexp.global.infra.auth.exception.AccessTokenStillValidException;
 import org.example.hugmeexp.global.infra.auth.exception.InvalidAccessTokenException;
 import org.springframework.stereotype.Component;
 
@@ -157,12 +157,12 @@ public class JwtTokenProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken);
             // If parsing succeeds, the token is still valid.
-            throw new InvalidAccessTokenException(ErrorCode.ACCESS_TOKEN_STILL_VALID);
+            throw new AccessTokenStillValidException();
         } catch (ExpiredJwtException e) {
             // This is the expected case for reissue, so we do nothing.
         } catch (Exception e) {
             // Any other exception means the token is invalid for other reasons.
-            throw new InvalidAccessTokenException(ErrorCode.INVALID_ACCESS_TOKEN);
+            throw new InvalidAccessTokenException();
         }
     }
 }

@@ -5,7 +5,7 @@ import org.example.hugmeexp.domain.mission.dto.response.UserMissionResponse;
 import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.service.SubmissionService;
 import org.example.hugmeexp.domain.mission.service.UserMissionService;
-import org.example.hugmeexp.global.common.exception.ExceptionController;
+import org.example.hugmeexp.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class ChallengeControllerTest {
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(challengeController)
-                .setControllerAdvice(new ExceptionController())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
     }

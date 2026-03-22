@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.user.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class InvalidValueException extends BaseCustomException {
+public class InvalidValueException extends BaseException {
     public InvalidValueException(String message) {
-        super(HttpStatus.BAD_REQUEST, message, HttpStatus.BAD_REQUEST.value());
+        super(ErrorStatus.INVALID_VALUE, message);
     }
 }

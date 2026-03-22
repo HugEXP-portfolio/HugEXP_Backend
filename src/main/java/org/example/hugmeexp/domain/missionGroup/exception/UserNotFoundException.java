@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.missionGroup.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UserNotFoundException extends BaseCustomException {
+public class UserNotFoundException extends BaseException {
     public UserNotFoundException() {
-        super(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다.");
+        super(ErrorStatus.MISSION_GROUP_USER_NOT_FOUND);
     }
 }

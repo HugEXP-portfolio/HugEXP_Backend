@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.shop.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class NotEnoughPointException extends BaseCustomException {
+public class NotEnoughPointException extends BaseException {
     public NotEnoughPointException() {
-        super(HttpStatus.BAD_REQUEST, "Not enough point to purchase product.");
+        super(ErrorStatus.NOT_ENOUGH_POINT);
     }
 }

@@ -1,13 +1,10 @@
 package org.example.hugmeexp.domain.attendance.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class AttendanceAlreadyCheckedException extends BaseCustomException {
-    private static final String MESSAGE = "이미 출석체크가 완료되었습니다.";
-    private static final int CODE = 409;
-
+public class AttendanceAlreadyCheckedException extends BaseException {
     public AttendanceAlreadyCheckedException() {
-        super(HttpStatus.CONFLICT, MESSAGE, CODE);
+        super(ErrorStatus.ATTENDANCE_ALREADY_CHECKED);
     }
 }

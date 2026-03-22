@@ -15,7 +15,7 @@ import org.example.hugmeexp.domain.missionGroup.exception.NotExistsUserMissionGr
 import org.example.hugmeexp.domain.missionGroup.exception.UserNotFoundException;
 import org.example.hugmeexp.domain.missionGroup.service.MissionGroupService;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
-import org.example.hugmeexp.global.common.exception.ExceptionController;
+import org.example.hugmeexp.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -73,7 +73,7 @@ class MissionGroupControllerTest {
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(missionGroupController)
-                .setControllerAdvice(new ExceptionController())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(
                         new AuthenticationPrincipalArgumentResolver()
                 )
@@ -316,7 +316,7 @@ class MissionGroupControllerTest {
 
         // When & Then
         mockMvc.perform(post(BASE_URL + "/{missionGroupId}/users/{username}", TEST_GROUP_ID, TEST_USERNAME))
-                .andExpect(status().isConflict()) // ExceptionController가 409 Conflict로 변환한다고 가정
+                .andExpect(status().isConflict()) // GlobalExceptionHandler가 409 Conflict로 변환한다고 가정
                 .andDo(print());
     }
 
@@ -330,7 +330,7 @@ class MissionGroupControllerTest {
 
         // When & Then
         mockMvc.perform(post(BASE_URL + "/{missionGroupId}/users/{username}", TEST_GROUP_ID, TEST_USERNAME))
-                .andExpect(status().isNotFound()) // ExceptionController가 404 Not Found로 변환한다고 가정
+                .andExpect(status().isNotFound()) // GlobalExceptionHandler가 404 Not Found로 변환한다고 가정
                 .andDo(print());
     }
 
@@ -360,7 +360,7 @@ class MissionGroupControllerTest {
 
         // When & Then
         mockMvc.perform(delete(BASE_URL + "/{missionGroupId}/users/{username}", TEST_GROUP_ID, TEST_USERNAME))
-                .andExpect(status().isNotFound()) // ExceptionController가 404 Not Found로 변환한다고 가정
+                .andExpect(status().isNotFound()) // GlobalExceptionHandler가 404 Not Found로 변환한다고 가정
                 .andDo(print());
     }
 
@@ -374,7 +374,7 @@ class MissionGroupControllerTest {
 
         // When & Then
         mockMvc.perform(delete(BASE_URL + "/{missionGroupId}/users/{username}", TEST_GROUP_ID, TEST_USERNAME))
-                .andExpect(status().isNotFound()) // ExceptionController가 404 Not Found로 변환한다고 가정
+                .andExpect(status().isNotFound()) // GlobalExceptionHandler가 404 Not Found로 변환한다고 가정
                 .andDo(print());
     }
 

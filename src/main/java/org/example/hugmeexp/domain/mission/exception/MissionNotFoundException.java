@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class MissionNotFoundException extends BaseCustomException {
+public class MissionNotFoundException extends BaseException {
     public MissionNotFoundException() {
-        super(HttpStatus.NOT_FOUND, "해당 미션을 찾을 수 없습니다.");
+        super(ErrorStatus.MISSION_NOT_FOUND);
     }
 }

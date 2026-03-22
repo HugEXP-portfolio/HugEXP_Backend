@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UnauthorizedReservationAccessException extends BaseCustomException {
+public class UnauthorizedReservationAccessException extends BaseException {
     public UnauthorizedReservationAccessException() {
-        super(HttpStatus.FORBIDDEN, "예약에 대한 접근 권한이 없습니다.", 403);
+        super(ErrorStatus.UNAUTHORIZED_RESERVATION_ACCESS);
     }
 }

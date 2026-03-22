@@ -1,11 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UserNotFoundInPraiseException extends BaseCustomException {
-
-    public UserNotFoundInPraiseException(){
-        super(HttpStatus.NOT_FOUND,"사용자를 찾을 수 없습니다",404);
+public class UserNotFoundInPraiseException extends BaseException {
+    public UserNotFoundInPraiseException() {
+        super(ErrorStatus.USER_NOT_FOUND_IN_PRAISE);
     }
 }

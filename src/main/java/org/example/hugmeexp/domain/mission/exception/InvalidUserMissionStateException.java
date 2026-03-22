@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class InvalidUserMissionStateException extends BaseCustomException {
+public class InvalidUserMissionStateException extends BaseException {
     public InvalidUserMissionStateException() {
-        super(HttpStatus.BAD_REQUEST, "보상을 수령하기 위해서는 피드백이 완료되어야 합니다.");
+        super(ErrorStatus.INVALID_USER_MISSION_STATE);
     }
 }

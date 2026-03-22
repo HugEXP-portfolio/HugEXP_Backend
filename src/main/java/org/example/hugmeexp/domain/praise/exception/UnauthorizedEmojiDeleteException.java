@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UnauthorizedEmojiDeleteException extends BaseCustomException {
+public class UnauthorizedEmojiDeleteException extends BaseException {
     public UnauthorizedEmojiDeleteException() {
-        super(HttpStatus.FORBIDDEN,"이모지 삭제 권한이 없습니다",403);
+        super(ErrorStatus.UNAUTHORIZED_EMOJI_DELETE);
     }
 }

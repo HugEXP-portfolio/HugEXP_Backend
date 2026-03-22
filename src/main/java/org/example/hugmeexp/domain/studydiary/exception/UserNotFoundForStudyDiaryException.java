@@ -1,11 +1,10 @@
 package org.example.hugmeexp.domain.studydiary.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UserNotFoundForStudyDiaryException extends BaseCustomException {
-
+public class UserNotFoundForStudyDiaryException extends BaseException {
     public UserNotFoundForStudyDiaryException() {
-        super(HttpStatus.NOT_FOUND, "존재하지 않는 유저입니다.", 3001);
+        super(ErrorStatus.STUDY_DIARY_USER_NOT_FOUND);
     }
 }

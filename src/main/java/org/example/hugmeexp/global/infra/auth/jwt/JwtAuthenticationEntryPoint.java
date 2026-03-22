@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.example.hugmeexp.global.common.exception.response.ErrorResponse;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -26,10 +26,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(401)
-                .message("Unauthorized")
-                .build();
+        ApiResponse<Void> errorResponse = ApiResponse.failure("Unauthorized");
 
         String json = objectMapper.writeValueAsString(errorResponse);
         response.getWriter().write(json);

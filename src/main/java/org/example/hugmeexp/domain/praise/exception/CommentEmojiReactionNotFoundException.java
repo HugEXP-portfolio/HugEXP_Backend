@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class CommentEmojiReactionNotFoundException extends BaseCustomException {
+public class CommentEmojiReactionNotFoundException extends BaseException {
     public CommentEmojiReactionNotFoundException() {
-        super(HttpStatus.NOT_FOUND,"댓글 반응을 찾을 수 없습니다",404);
+        super(ErrorStatus.COMMENT_EMOJI_REACTION_NOT_FOUND);
     }
 }

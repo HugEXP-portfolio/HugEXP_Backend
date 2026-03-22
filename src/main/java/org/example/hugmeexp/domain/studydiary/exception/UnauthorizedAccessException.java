@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studydiary.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UnauthorizedAccessException extends BaseCustomException {
+public class UnauthorizedAccessException extends BaseException {
     public UnauthorizedAccessException() {
-        super(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.", 403);
+        super(ErrorStatus.STUDY_DIARY_UNAUTHORIZED_ACCESS);
     }
-} 
+}

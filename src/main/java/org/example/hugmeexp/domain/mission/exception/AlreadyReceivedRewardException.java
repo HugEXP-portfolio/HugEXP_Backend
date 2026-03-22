@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class AlreadyReceivedRewardException extends BaseCustomException {
+public class AlreadyReceivedRewardException extends BaseException {
     public AlreadyReceivedRewardException() {
-        super(HttpStatus.BAD_REQUEST, "이미 보상을 수령했습니다.");
+        super(ErrorStatus.ALREADY_RECEIVED_REWARD);
     }
 }

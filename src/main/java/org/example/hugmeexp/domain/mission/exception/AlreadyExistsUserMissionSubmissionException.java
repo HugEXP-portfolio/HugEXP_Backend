@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class AlreadyExistsUserMissionSubmissionException extends BaseCustomException {
+public class AlreadyExistsUserMissionSubmissionException extends BaseException {
     public AlreadyExistsUserMissionSubmissionException() {
-        super(HttpStatus.CONFLICT, "이미 제출한 미션입니다.");
+        super(ErrorStatus.ALREADY_EXISTS_USER_MISSION_SUBMISSION);
     }
 }

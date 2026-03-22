@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.missionGroup.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class AlreadyExistsUserMissionGroupException extends BaseCustomException {
+public class AlreadyExistsUserMissionGroupException extends BaseException {
     public AlreadyExistsUserMissionGroupException() {
-        super(HttpStatus.CONFLICT, "유저가 이미 해당 미션 그룹에 참여하고 있습니다.");
+        super(ErrorStatus.ALREADY_EXISTS_USER_MISSION_GROUP);
     }
 }

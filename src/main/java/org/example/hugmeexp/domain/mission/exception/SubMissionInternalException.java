@@ -1,14 +1,14 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class SubMissionInternalException extends BaseCustomException {
+public class SubMissionInternalException extends BaseException {
     public SubMissionInternalException(String message) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+        super(message, ErrorStatus.SUB_MISSION_INTERNAL);
     }
 
     public SubMissionInternalException() {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, "서브미션 처리 중 내부 오류가 발생했습니다.");
+        super(ErrorStatus.SUB_MISSION_INTERNAL);
     }
 }

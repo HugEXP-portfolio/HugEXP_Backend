@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.notification.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class ForbiddenNotificationAccessException extends BaseCustomException {
+public class ForbiddenNotificationAccessException extends BaseException {
     public ForbiddenNotificationAccessException() {
-        super(HttpStatus.FORBIDDEN, "본인의 알림만 읽을 수 있습니다.", 403);
+        super(ErrorStatus.FORBIDDEN_NOTIFICATION_ACCESS);
     }
 }
