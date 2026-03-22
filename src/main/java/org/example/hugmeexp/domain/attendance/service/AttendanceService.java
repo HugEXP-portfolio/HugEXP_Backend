@@ -28,6 +28,9 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class AttendanceService {
 
+    private static final int ATTENDANCE_EXP = 31;
+    private static final int ATTENDANCE_POINT = 1;
+
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
     private final UserService userService;
@@ -116,8 +119,8 @@ public class AttendanceService {
             throw new AttendanceAlreadyCheckedException();
         }
 
-        int exp = 31;
-        int point = 1;
+        int exp = ATTENDANCE_EXP;
+        int point = ATTENDANCE_POINT;
 
         try{
             // 신규 출석 저장
