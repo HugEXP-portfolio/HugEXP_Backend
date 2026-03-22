@@ -7,8 +7,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.studyRoom.dto.mapper.StudyHallMapper;
-import org.example.hugmeexp.domain.studyRoom.dto.mapper.StudyRoomMapper;
 import org.example.hugmeexp.domain.studyRoom.dto.request.StudyHallRequest;
 import org.example.hugmeexp.domain.studyRoom.dto.request.StudyRoomRequest;
 import org.example.hugmeexp.domain.studyRoom.dto.response.StudyHallResponse;
@@ -37,9 +35,7 @@ import java.util.List;
 public class AdminStudyRoomController {
 
     private final StudyHallService studyHallService;
-    private final StudyHallMapper studyHallMapper;
     private final StudyRoomService studyRoomService;
-    private final StudyRoomMapper studyRoomMapper;
 
 
     /**
@@ -56,7 +52,7 @@ public class AdminStudyRoomController {
     @PostMapping
     public ResponseEntity<StudyHallResponse> createStudyHall(@Valid @RequestBody StudyHallRequest requestDto) {
         StudyHall createdStudyHall = studyHallService.createStudyHall(requestDto);
-        StudyHallResponse responseDto = studyHallMapper.toResponseDto(createdStudyHall);
+        StudyHallResponse responseDto = StudyHallResponse.from(createdStudyHall);
         URI location = URI.create(String.format("/api/v1/admin/studyhalls/%d", createdStudyHall.getId()));
 
         return ResponseEntity.created(location).body(responseDto);
@@ -70,7 +66,7 @@ public class AdminStudyRoomController {
     @GetMapping
     public ResponseEntity<Page<StudyHallResponse>> getAllStudyHalls(Pageable pageable) {
         Page<StudyHall> studyHallsPage = studyHallService.findAllStudyHalls(pageable);
-        Page<StudyHallResponse> responseDtos = studyHallsPage.map(studyHallMapper::toResponseDto);
+        Page<StudyHallResponse> responseDtos = studyHallsPage.map(StudyHallResponse::from);
         return ResponseEntity.ok(responseDtos);
     }
     /**
@@ -86,7 +82,7 @@ public class AdminStudyRoomController {
     @GetMapping("/{studyHallId}")
     public ResponseEntity<StudyHallResponse> getStudyHallById(@PathVariable Long studyHallId) {
         StudyHall studyHall = studyHallService.findStudyHallById(studyHallId);
-        StudyHallResponse responseDto = studyHallMapper.toResponseDto(studyHall);
+        StudyHallResponse responseDto = StudyHallResponse.from(studyHall);
         return ResponseEntity.ok(responseDto);
     }
 
@@ -103,7 +99,7 @@ public class AdminStudyRoomController {
             @Valid @RequestBody StudyRoomRequest requestDto) {
 
         StudyRoom createdStudyRoom = studyRoomService.createStudyRoom(studyHallId, requestDto);
-        StudyRoomResponse responseDto = studyRoomMapper.toResponseDto(createdStudyRoom);
+        StudyRoomResponse responseDto = StudyRoomResponse.from(createdStudyRoom);
         URI location = URI.create(String.format("/api/v1/admin/studyhalls/%d/rooms/%d", studyHallId, createdStudyRoom.getId()));
 
         return ResponseEntity.created(location).body(responseDto);
@@ -118,7 +114,7 @@ public class AdminStudyRoomController {
     @GetMapping("/{studyHallId}/rooms")
     public ResponseEntity<List<StudyRoomResponse>> getAllRoomsInHall(@PathVariable Long studyHallId) {
         List<StudyRoom> rooms = studyRoomService.findAllRoomsInHall(studyHallId);
-        List<StudyRoomResponse> responseDtos = studyRoomMapper.toResponseDtos(rooms);
+        List<StudyRoomResponse> responseDtos = rooms.stream().map(StudyRoomResponse::from).toList();
         return ResponseEntity.ok(responseDtos);
     }
 
@@ -132,7 +128,7 @@ public class AdminStudyRoomController {
             @Valid @RequestBody StudyHallRequest requestDto) {
 
         StudyHall updatedStudyHall = studyHallService.updateStudyHall(studyHallId, requestDto);
-        return ResponseEntity.ok(studyHallMapper.toResponseDto(updatedStudyHall));
+        return ResponseEntity.ok(StudyHallResponse.from(updatedStudyHall));
     }
 
     /**
@@ -156,7 +152,7 @@ public class AdminStudyRoomController {
             @Valid @RequestBody StudyRoomRequest requestDto) {
 
         StudyRoom updatedStudyRoom = studyRoomService.updateStudyRoom(studyHallId, roomId, requestDto);
-        return ResponseEntity.ok(studyRoomMapper.toResponseDto(updatedStudyRoom));
+        return ResponseEntity.ok(StudyRoomResponse.from(updatedStudyRoom));
     }
 
     /**

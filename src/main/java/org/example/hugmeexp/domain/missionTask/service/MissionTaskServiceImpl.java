@@ -15,7 +15,6 @@ import org.example.hugmeexp.domain.missionTask.entity.MissionTask;
 import org.example.hugmeexp.domain.missionTask.entity.UserMissionTask;
 import org.example.hugmeexp.domain.missionTask.enums.TaskState;
 import org.example.hugmeexp.domain.missionTask.exception.MissionTaskNotFoundException;
-import org.example.hugmeexp.domain.missionTask.mapper.MissionTaskMapper;
 import org.example.hugmeexp.domain.missionTask.repository.MissionTaskRepository;
 import org.example.hugmeexp.domain.missionTask.repository.UserMissionTaskRepository;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -31,14 +30,13 @@ import java.util.Optional;
 public class MissionTaskServiceImpl implements MissionTaskService {
     private final MissionTaskRepository missionTaskRepository;
     private final UserMissionTaskRepository userMissionTaskRepository;
-    private final MissionTaskMapper missionTaskMapper;
     private final UserRepository userRepository;
     private final UserMissionRepository userMissionRepository;
     private final MissionRepository missionRepository;
 
     @Override
     public List<MissionTaskResponse> findByMissionId(Long missionId) {
-        return missionTaskRepository.findByMissionId(missionId).stream().map(missionTaskMapper::toMissionTaskResponse).toList();
+        return missionTaskRepository.findByMissionId(missionId).stream().map(MissionTaskResponse::from).toList();
     }
 
     @Override
@@ -51,16 +49,21 @@ public class MissionTaskServiceImpl implements MissionTaskService {
 
         List<UserMissionTask> userMissionTasks = userMissionTaskRepository.findByUserMission(userMission);
 
-        return userMissionTasks.stream().map(missionTaskMapper::toUserMissionTaskResponse).toList();
+        return userMissionTasks.stream().map(UserMissionTaskResponse::from).toList();
     }
 
     @Override
     @Transactional
     public MissionTaskResponse addMissionTask(Long missionId, MissionTaskRequest missionTaskRequest) {
-        MissionTask missionTask = missionTaskMapper.toEntity(missionTaskRequest);
-        missionTask.setMission(missionRepository.findById(missionId).orElseThrow(MissionNotFoundException::new));
+        Mission mission = missionRepository.findById(missionId).orElseThrow(MissionNotFoundException::new);
+        MissionTask missionTask = MissionTask.builder()
+                .name(missionTaskRequest.getName())
+                .score(missionTaskRequest.getScore())
+                .tip(missionTaskRequest.getTip())
+                .mission(mission)
+                .build();
         MissionTask savedMissionTask = missionTaskRepository.save(missionTask);
-        return missionTaskMapper.toMissionTaskResponse(savedMissionTask);
+        return MissionTaskResponse.from(savedMissionTask);
     }
 
     @Override

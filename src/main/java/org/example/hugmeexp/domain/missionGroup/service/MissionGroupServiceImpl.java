@@ -4,7 +4,6 @@ package org.example.hugmeexp.domain.missionGroup.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.hugmeexp.domain.mission.dto.response.UserMissionResponse;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionMapper;
 import org.example.hugmeexp.domain.mission.repository.UserMissionRepository;
 import org.example.hugmeexp.domain.missionGroup.dto.request.MissionGroupRequest;
 import org.example.hugmeexp.domain.missionGroup.dto.response.MissionGroupResponse;
@@ -12,8 +11,6 @@ import org.example.hugmeexp.domain.missionGroup.dto.response.UserMissionGroupRes
 import org.example.hugmeexp.domain.missionGroup.entity.MissionGroup;
 import org.example.hugmeexp.domain.missionGroup.entity.UserMissionGroup;
 import org.example.hugmeexp.domain.missionGroup.exception.*;
-import org.example.hugmeexp.domain.missionGroup.mapper.MissionGroupMapper;
-import org.example.hugmeexp.domain.missionGroup.mapper.UserMissionGroupMapper;
 import org.example.hugmeexp.domain.missionGroup.repository.MissionGroupRepository;
 import org.example.hugmeexp.domain.missionGroup.repository.UserMissionGroupRepository;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
@@ -37,9 +34,6 @@ public class MissionGroupServiceImpl implements MissionGroupService {
     private final UserMissionGroupRepository userMissionGroupRepository;
     private final UserRepository userRepository;
     private final UserMissionRepository userMissionRepository;
-    private final MissionGroupMapper missionGroupMapper;
-    private final UserMissionMapper userMissionMapper;
-    private final UserMissionGroupMapper userMissionGroupMapper;
     private final CacheManager cacheManager;
 
 
@@ -48,7 +42,7 @@ public class MissionGroupServiceImpl implements MissionGroupService {
     public List<MissionGroupResponse> getAllMissionGroups() {
         return missionGroupRepository.findAllWithTeacher()
                 .stream()
-                .map(missionGroupMapper::toMissionGroupResponse)
+                .map(MissionGroupResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -83,14 +77,14 @@ public class MissionGroupServiceImpl implements MissionGroupService {
         if (cache != null) {
             cache.evict(savedMissionGroup.getId());
         }
-        return missionGroupMapper.toMissionGroupResponse(savedMissionGroup);
+        return MissionGroupResponse.from(savedMissionGroup);
     }
 
     @Override
     @Cacheable(value = "missionGroupById", key = "#id")
     public List<MissionGroupResponse> getMissionGroupById(Long id) {
         MissionGroupResponse dto = missionGroupRepository.findByIdWithTeacher(id)
-                .map(missionGroupMapper::toMissionGroupResponse)
+                .map(MissionGroupResponse::from)
                 .orElseThrow(MissionGroupNotFoundException::new);
         return new ArrayList<>(Arrays.asList(dto));
     }
@@ -114,7 +108,7 @@ public class MissionGroupServiceImpl implements MissionGroupService {
                 .build();
         var updatedMissionGroup = missionGroupRepository.save(missionGroup);
 
-        return missionGroupMapper.toMissionGroupResponse(updatedMissionGroup);
+        return MissionGroupResponse.from(updatedMissionGroup);
     }
 
     @Override
@@ -192,7 +186,7 @@ public class MissionGroupServiceImpl implements MissionGroupService {
 
         return userMissionRepository.findByUserAndUserMissionGroup(user, userMissionGroup)
                 .stream()
-                .map(userMissionMapper::toUserMissionResponse)
+                .map(UserMissionResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -205,7 +199,7 @@ public class MissionGroupServiceImpl implements MissionGroupService {
         List<UserMissionGroup> userMissionGroups = userMissionGroupRepository.findByUserIdWithTeacher(user.getId());
         return userMissionGroups
                 .stream()
-                .map(userMissionGroupMapper::toUserMissionGroupResponse)
+                .map(UserMissionGroupResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -217,11 +211,7 @@ public class MissionGroupServiceImpl implements MissionGroupService {
 
         List<User> users = userMissionGroupRepository.findUsersByMissionGroup(missionGroup);
         return users.stream()
-                .map(user -> new UserProfileResponse(
-                        user.getPublicProfileImageUrl(),
-                        user.getUsername(),
-                        user.getName()
-                ))
+                .map(UserProfileResponse::from)
                 .collect(Collectors.toList());
     }
 }

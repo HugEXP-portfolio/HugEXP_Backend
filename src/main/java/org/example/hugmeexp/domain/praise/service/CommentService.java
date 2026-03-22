@@ -8,7 +8,6 @@ import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.exception.CommentNotFoundException;
 import org.example.hugmeexp.domain.praise.exception.ForbiddenCommentAccessException;
 import org.example.hugmeexp.domain.praise.exception.PraiseNotFoundException;
-import org.example.hugmeexp.domain.praise.mapper.CommentMapper;
 import org.example.hugmeexp.domain.praise.repository.CommentEmojiReactionRepository;
 import org.example.hugmeexp.domain.praise.repository.CommentRepository;
 import org.example.hugmeexp.domain.praise.repository.PraiseRepository;
@@ -22,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final CommentMapper commentMapper;
     private final CommentRepository commentRepository;
     private final PraiseRepository praiseRepository;
     private final CommentEmojiReactionRepository commentEmojiReactionRepository;
@@ -35,13 +33,17 @@ public class CommentService {
         Praise praise = praiseRepository.findById(praiseId).orElseThrow(() -> new PraiseNotFoundException());
 
         // DTO -> Entity 변환
-        PraiseComment comment = commentMapper.toEntity(commentRequestDTO, praise, commentWriter);
+        PraiseComment comment = PraiseComment.builder()
+                .content(commentRequestDTO.getContent())
+                .praise(praise)
+                .commentWriter(commentWriter)
+                .build();
 
         // DB 저장
         PraiseComment saved = commentRepository.save(comment);
 
         // Entity -> DTO 변환
-        return commentMapper.toDTO(saved);
+        return CommentResponse.from(saved);
     }
 
     /* 댓글 삭제 */

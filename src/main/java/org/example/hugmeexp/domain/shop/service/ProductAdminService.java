@@ -11,7 +11,6 @@ import org.example.hugmeexp.domain.shop.entity.Product;
 import org.example.hugmeexp.domain.shop.entity.ProductImage;
 import org.example.hugmeexp.domain.shop.exception.ProductDeletedException;
 import org.example.hugmeexp.domain.shop.exception.ProductNotFoundException;
-import org.example.hugmeexp.domain.shop.mapper.ProductMapper;
 import org.example.hugmeexp.domain.shop.repository.ProductImageRepository;
 import org.example.hugmeexp.domain.shop.repository.ProductRepository;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -32,7 +31,6 @@ public class ProductAdminService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final UserRepository userRepository;
-    private final ProductMapper productMapper;
 
     /**
      * 상품 등록 메서드
@@ -125,8 +123,7 @@ public class ProductAdminService {
 
         Product savedProduct = productRepository.save(product);
         log.info("Product saved with ID: {}", savedProduct.getId());
-        ProductResponse response = productMapper.toResponse(savedProduct);
-        return response;
+        return ProductResponse.from(savedProduct);
     }
 
 

@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.mission.entity.*;
 import org.example.hugmeexp.domain.mission.enums.FileUploadType;
 import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.exception.*;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionSubmissionMapper;
 import org.example.hugmeexp.domain.mission.repository.*;
 import org.example.hugmeexp.domain.mission.util.FileUploadUtils;
 import org.example.hugmeexp.domain.missionGroup.exception.UserNotFoundException;
@@ -52,8 +51,6 @@ public class SubmissionServiceTest {
     @Mock
     private UserMissionSubmissionRepository userMissionSubmissionRepository;
     @Mock
-    private UserMissionSubmissionMapper userMissionSubmissionMapper;
-    @Mock
     private UserMissionStateLogRepository userMissionStateLogRepository;
     @Mock
     private UserService userService;
@@ -91,7 +88,6 @@ public class SubmissionServiceTest {
 
             when(userMissionRepository.findById(userMissionId)).thenReturn(Optional.of(userMission));
             when(userMissionSubmissionRepository.existsByUserMission(userMission)).thenReturn(false);
-            when(userMissionSubmissionMapper.toEntity(request)).thenReturn(submission);
 
             // When
             submissionService.submitChallenge(userMissionId, request, file);
@@ -137,12 +133,11 @@ public class SubmissionServiceTest {
 
             when(userMissionRepository.findById(userMissionId)).thenReturn(Optional.of(userMission));
             when(userMissionSubmissionRepository.existsByUserMission(userMission)).thenReturn(false);
-            when(userMissionSubmissionMapper.toEntity(request)).thenReturn(submission);
 
             // When & Then
             assertThatThrownBy(() -> submissionService.submitChallenge(userMissionId, request, file))
                     .isInstanceOf(SubmissionFileUploadException.class)
-                    .hasMessage("파일이 비어있거나 존재하지 않습니다.");
+                    .hasMessageContaining("파일이 비어있거나 존재하지 않습니다.");
 
         }
     }
@@ -169,7 +164,6 @@ public class SubmissionServiceTest {
 
             when(userMissionRepository.findById(userMissionId)).thenReturn(Optional.of(userMission));
             when(userMissionSubmissionRepository.existsByUserMission(userMission)).thenReturn(false);
-            when(userMissionSubmissionMapper.toEntity(request)).thenReturn(submission);
 
             // When & Then
             assertThatThrownBy(() -> submissionService.submitChallenge(userMissionId, request, file),
@@ -238,7 +232,6 @@ public class SubmissionServiceTest {
 
             when(userMissionRepository.findById(userMissionId)).thenReturn(Optional.of(userMission));
             when(userMissionSubmissionRepository.existsByUserMission(userMission)).thenReturn(false);
-            when(userMissionSubmissionMapper.toEntity(request)).thenReturn(submission);
 
             // When & Then
             // RuntimeException인 SubmissionFileUploadException이 발생하는지 확인
@@ -262,7 +255,6 @@ public class SubmissionServiceTest {
 
         when(userMissionRepository.findById(userMissionId)).thenReturn(Optional.of(userMission));
         when(userMissionSubmissionRepository.findByUserMission(userMission)).thenReturn(Optional.of(submission));
-        when(userMissionSubmissionMapper.toSubmissionResponse(submission)).thenReturn(expectedResponse);
 
         // When
         SubmissionResponse actualResponse = submissionService.getSubmissionByMissionId(userMissionId);

@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.praise.entity.CommentEmojiReaction;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.exception.*;
-import org.example.hugmeexp.domain.praise.mapper.CommentEmojiReactionMapper;
 import org.example.hugmeexp.domain.praise.repository.CommentEmojiReactionRepository;
 import org.example.hugmeexp.domain.praise.repository.CommentRepository;
 import org.example.hugmeexp.domain.praise.repository.PraiseRepository;
@@ -39,9 +38,6 @@ class CommentEmojiReactionServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
-
-    @Mock
-    private CommentEmojiReactionMapper commentEmojiReactionMapper;
 
     @BeforeEach
     void setUp() {
@@ -103,8 +99,7 @@ class CommentEmojiReactionServiceTest {
         when(praiseRepository.existsById(praiseId)).thenReturn(true);
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
         when(commentEmojiReactionRepository.existsByCommentAndReactorWriterAndEmoji(comment, user, emojiValue)).thenReturn(false);
-        when(commentEmojiReactionMapper.toEntity(requestDTO, comment, user)).thenReturn(reaction);
-        when(commentEmojiReactionRepository.save(reaction)).thenReturn(reaction);
+        when(commentEmojiReactionRepository.save(any(CommentEmojiReaction.class))).thenReturn(reaction);
         
         // when
         CommentEmojiReactionResponse result = commentEmojiReactionService.createCommentReaction(praiseId, commentId, requestDTO, user);
@@ -116,8 +111,7 @@ class CommentEmojiReactionServiceTest {
         verify(praiseRepository).existsById(praiseId);
         verify(commentRepository).findById(commentId);
         verify(commentEmojiReactionRepository).existsByCommentAndReactorWriterAndEmoji(comment, user, emojiValue);
-        verify(commentEmojiReactionMapper).toEntity(requestDTO, comment, user);
-        verify(commentEmojiReactionRepository).save(reaction);
+        verify(commentEmojiReactionRepository).save(any(CommentEmojiReaction.class));
     }
 
     @Test
@@ -167,7 +161,6 @@ class CommentEmojiReactionServiceTest {
         verify(commentEmojiReactionRepository).existsByCommentAndReactorWriterAndEmoji(comment, user, emojiValue);
         
         // 중복 반응이므로 아래 메서드들은 호출되지 않아야 함
-        verifyNoInteractions(commentEmojiReactionMapper);
         verify(commentEmojiReactionRepository, never()).save(any(CommentEmojiReaction.class));
     }
 
@@ -197,7 +190,6 @@ class CommentEmojiReactionServiceTest {
         verifyNoInteractions(praiseRepository);
         verifyNoInteractions(commentRepository);
         verifyNoInteractions(commentEmojiReactionRepository);
-        verifyNoInteractions(commentEmojiReactionMapper);
     }
 
     @Test
@@ -229,7 +221,6 @@ class CommentEmojiReactionServiceTest {
         verify(praiseRepository).existsById(invalidPraiseId);
         verifyNoInteractions(commentRepository);
         verifyNoInteractions(commentEmojiReactionRepository);
-        verifyNoInteractions(commentEmojiReactionMapper);
     }
 
     @Test
@@ -262,7 +253,6 @@ class CommentEmojiReactionServiceTest {
         verify(praiseRepository).existsById(praiseId);
         verify(commentRepository).findById(invalidCommentId);
         verifyNoInteractions(commentEmojiReactionRepository);
-        verifyNoInteractions(commentEmojiReactionMapper);
     }
 
     @Test
@@ -307,6 +297,5 @@ class CommentEmojiReactionServiceTest {
         verify(praiseRepository).existsById(praiseId);
         verify(commentRepository).findById(commentId);
         verifyNoInteractions(commentEmojiReactionRepository);
-        verifyNoInteractions(commentEmojiReactionMapper);
     }
 }

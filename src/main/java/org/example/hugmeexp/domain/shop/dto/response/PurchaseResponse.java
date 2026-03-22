@@ -2,6 +2,9 @@ package org.example.hugmeexp.domain.shop.dto.response;
 
 
 import lombok.*;
+import org.example.hugmeexp.domain.shop.entity.Order;
+import org.example.hugmeexp.domain.shop.entity.Product;
+import org.example.hugmeexp.domain.user.entity.User;
 
 import java.time.LocalDateTime;
 
@@ -25,4 +28,15 @@ public class PurchaseResponse {
 
     // 구매 시각
     private LocalDateTime purchaseTime;
+
+    public static PurchaseResponse from(User purchaser, Product product, Order order) {
+        return PurchaseResponse.builder()
+                .purchaserName(purchaser.getName())
+                .remainingPoint(purchaser.getPoint())
+                .productName(product.getName())
+                .productQuantity(product.getQuantity())
+                .phoneNumber(order.getReceiverPhoneNumber())
+                .purchaseTime(order.getCreatedAt())
+                .build();
+    }
 }

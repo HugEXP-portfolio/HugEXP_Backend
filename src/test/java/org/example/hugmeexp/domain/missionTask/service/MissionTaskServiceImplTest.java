@@ -13,7 +13,6 @@ import org.example.hugmeexp.domain.missionTask.entity.MissionTask;
 import org.example.hugmeexp.domain.missionTask.entity.UserMissionTask;
 import org.example.hugmeexp.domain.missionTask.enums.TaskState;
 import org.example.hugmeexp.domain.missionTask.exception.MissionTaskNotFoundException;
-import org.example.hugmeexp.domain.missionTask.mapper.MissionTaskMapper;
 import org.example.hugmeexp.domain.missionTask.repository.MissionTaskRepository;
 import org.example.hugmeexp.domain.missionTask.repository.UserMissionTaskRepository;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -42,8 +41,6 @@ class MissionTaskServiceImplTest {
     @Mock
     UserMissionTaskRepository userMissionTaskRepository;
     @Mock
-    MissionTaskMapper missionTaskMapper;
-    @Mock
     UserRepository userRepository;
     @Mock
     UserMissionRepository userMissionRepository;
@@ -59,14 +56,14 @@ class MissionTaskServiceImplTest {
     @DisplayName("미션 ID로 미션 태스크 목록 조회 - 성공")
     void findByMissionId_Success() {
         // Given
-        MissionTask task = mock(MissionTask.class);
-        MissionTaskResponse response = mock(MissionTaskResponse.class);
+        Mission mission = Mission.builder().id(SAMPLE_ID).build();
+        MissionTask task = MissionTask.builder().id(SAMPLE_ID).name("task").score(10).tip("tip").mission(mission).build();
         when(missionTaskRepository.findByMissionId(SAMPLE_ID)).thenReturn(List.of(task));
-        when(missionTaskMapper.toMissionTaskResponse(task)).thenReturn(response);
         // When
         List<MissionTaskResponse> result = missionTaskService.findByMissionId(SAMPLE_ID);
         // Then
-        assertThat(result).containsExactly(response);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test
@@ -76,17 +73,24 @@ class MissionTaskServiceImplTest {
         User user = mock(User.class);
         Mission mission = mock(Mission.class);
         UserMission userMission = mock(UserMission.class);
-        UserMissionTask userMissionTask = mock(UserMissionTask.class);
-        UserMissionTaskResponse response = mock(UserMissionTaskResponse.class);
+        MissionTask missionTask = mock(MissionTask.class);
+        UserMissionTask userMissionTask = UserMissionTask.builder()
+                .id(SAMPLE_ID)
+                .userMission(userMission)
+                .missionTask(missionTask)
+                .state(TaskState.COMPLETED)
+                .build();
+        when(userMission.getId()).thenReturn(SAMPLE_ID);
+        when(missionTask.getId()).thenReturn(SAMPLE_ID);
         when(userRepository.findByUsername(SAMPLE_USERNAME)).thenReturn(Optional.of(user));
         when(missionRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(mission));
         when(userMissionRepository.findByUserAndMission(user, mission)).thenReturn(Optional.of(userMission));
         when(userMissionTaskRepository.findByUserMission(userMission)).thenReturn(List.of(userMissionTask));
-        when(missionTaskMapper.toUserMissionTaskResponse(userMissionTask)).thenReturn(response);
         // When
         List<UserMissionTaskResponse> result = missionTaskService.findUserMissionTasksByUsernameAndMissionId(SAMPLE_USERNAME, SAMPLE_ID);
         // Then
-        assertThat(result).containsExactly(response);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test
@@ -104,18 +108,15 @@ class MissionTaskServiceImplTest {
     void addMissionTask_Success() {
         // Given
         MissionTaskRequest request = MissionTaskRequest.builder().name("task").build();
-        MissionTask entity = mock(MissionTask.class);
         Mission mission = mock(Mission.class);
-        MissionTask saved = mock(MissionTask.class);
-        MissionTaskResponse response = mock(MissionTaskResponse.class);
-        when(missionTaskMapper.toEntity(request)).thenReturn(entity);
+        when(mission.getId()).thenReturn(SAMPLE_ID);
+        MissionTask saved = MissionTask.builder().id(SAMPLE_ID).name("task").mission(mission).build();
         when(missionRepository.findById(SAMPLE_ID)).thenReturn(Optional.of(mission));
-        when(missionTaskRepository.save(entity)).thenReturn(saved);
-        when(missionTaskMapper.toMissionTaskResponse(saved)).thenReturn(response);
+        when(missionTaskRepository.save(any(MissionTask.class))).thenReturn(saved);
         // When
         MissionTaskResponse result = missionTaskService.addMissionTask(SAMPLE_ID, request);
         // Then
-        assertThat(result).isEqualTo(response);
+        assertThat(result.getId()).isEqualTo(SAMPLE_ID);
     }
 
     @Test

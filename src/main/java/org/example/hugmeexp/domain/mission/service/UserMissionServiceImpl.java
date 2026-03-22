@@ -11,8 +11,6 @@ import org.example.hugmeexp.domain.mission.enums.UserMissionState;
 import org.example.hugmeexp.domain.mission.exception.AlreadyExistsUserMissionException;
 import org.example.hugmeexp.domain.mission.exception.MissionNotFoundException;
 import org.example.hugmeexp.domain.mission.exception.UserMissionNotFoundException;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionMapper;
-import org.example.hugmeexp.domain.mission.mapper.UserMissionStateLogMapper;
 import org.example.hugmeexp.domain.mission.repository.MissionRepository;
 import org.example.hugmeexp.domain.mission.repository.UserMissionRepository;
 import org.example.hugmeexp.domain.mission.repository.UserMissionStateLogRepository;
@@ -38,9 +36,7 @@ public class UserMissionServiceImpl implements UserMissionService {
     private final UserMissionRepository userMissionRepository;
     private final UserMissionGroupRepository userMissionGroupRepository;
     private final UserRepository userRepository;
-    private final UserMissionMapper userMissionMapper;
     private final UserMissionStateLogRepository userMissionStateLogRepository;
-    private final UserMissionStateLogMapper userMissionStateLogMapper;
 
     private final CacheService cacheService;
 
@@ -77,7 +73,7 @@ public class UserMissionServiceImpl implements UserMissionService {
 
         cacheService.evictUserCache(username);
 
-        return userMissionMapper.toUserMissionResponse(userMissionRepository.save(userMission));
+        return UserMissionResponse.from(userMissionRepository.save(userMission));
     }
 
     @Override
@@ -102,7 +98,7 @@ public class UserMissionServiceImpl implements UserMissionService {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
         return userMissionStateLogRepository.findByUserIdAndCreatedAtBetween(userId, startDateTime, endDateTime)
-                .stream().map(userMissionStateLogMapper::toUserMissionStateLogResponse).collect(Collectors.toList());
+                .stream().map(UserMissionStateLogResponse::from).collect(Collectors.toList());
     }
 
     @Override
@@ -116,7 +112,7 @@ public class UserMissionServiceImpl implements UserMissionService {
         UserMission userMissions = userMissionRepository.findByUserAndMission(user, mission)
                 .orElseThrow(UserMissionNotFoundException::new);
 
-        return userMissionMapper.toUserMissionResponse(userMissions);
+        return UserMissionResponse.from(userMissions);
     }
 
     @Override
@@ -126,7 +122,7 @@ public class UserMissionServiceImpl implements UserMissionService {
         List<UserMission> userMissions = userMissionRepository.findAllByMission_MissionGroup_Teacher(teacher);
 
         return userMissions
-                .stream().map(userMissionMapper::toUserMissionResponse).collect(Collectors.toList());
+                .stream().map(UserMissionResponse::from).collect(Collectors.toList());
     }
 
     @Override
@@ -134,6 +130,6 @@ public class UserMissionServiceImpl implements UserMissionService {
         UserMission userMission = userMissionRepository.findById(challengeId)
                 .orElseThrow(UserMissionNotFoundException::new);
 
-        return userMissionMapper.toUserMissionResponse(userMission);
+        return UserMissionResponse.from(userMission);
     }
 }

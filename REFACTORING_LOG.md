@@ -51,16 +51,34 @@
 
 ---
 
-## 앞으로 할 리팩토링 (TODO)
+## [RF-004] DTO 변환 방식 통일 — static factory method (`from()`)
 
-### DTO 변환 방식 통일
-- **우선순위**: 중간
-- **현재 문제**: 도메인별로 DTO 변환 방식이 다름
-  - praise, mission, shop → MapStruct 매퍼 사용
-  - bookmark, attendance, notification → DTO 내 static factory 메서드 (`from()`, `fromEntity()`)
-  - recruitment → 서비스에서 빌더 직접 호출
-- **목표**: 한 가지 방식으로 통일 (MapStruct 또는 static factory)
-- **영향 범위**: 5~8개 도메인
+- **Before**: Entity → Response DTO 변환 방식이 3가지 혼재
+  - MapStruct 매퍼: 9개 도메인 (mission, quest, shop, praise, missionGroup, missionTask, user, admin)
+  - DTO 내 static factory (`from()`, `of()`): 10개 도메인 (notification, recruitment, bookmark 등)
+  - 서비스에서 빌더 직접 호출: 12개 도메인 (AWS, admin, attendance 등)
+- **After**: 모든 Entity → Response DTO 변환을 `ResponseDTO.from(Entity)` 정적 팩토리 메서드로 통일
+- **Why**: MapStruct는 이 프로젝트에서 `default` 메서드에 수동 코드를 작성하는 형태로, 자동 매핑 이점을 못 누리고 있었음. `from()`은 DTO 안에 변환 로직이 있어 코드 추적이 쉽고 외부 의존성 없음
+- **Category**: 코드 일관성, 의존성 제거
+- **범위**: Entity → Response DTO 변환만 대상. Request DTO → Entity는 서비스에서 빌더 호출 유지. AWS 도메인은 대상 외 (단순 Entity→DTO 변환이 아님)
+- **변경 도메인**: praise, shop, mission, quest, missionGroup, missionTask, user, admin (8개 도메인)
+- **변경 내용**:
+  - Response DTO에 `public static XxxResponse from(Entity)` 메서드 추가 (16개 DTO)
+  - 서비스에서 `mapper.toResponse(entity)` → `XxxResponse.from(entity)` 또는 `XxxResponse::from`
+  - 서비스에서 `mapper.toEntity(request)` → `Entity.builder()...build()` 인라인
+  - MapStruct 매퍼 클래스 12개 삭제, 독립 정적 매퍼 유틸리티 3개 삭제
+  - 테스트 8개 파일에서 매퍼 Mock 제거 및 검증 방식 수정
+- **삭제된 매퍼 파일**:
+  - praise: `PraiseMapper`, `CommentMapper`, `CommentEmojiReactionMapper`, `PraiseEmojiReactionMapper`
+  - mission: `MissionMapper`, `UserMissionMapper`, `UserMissionStateLogMapper`, `UserMissionSubmissionMapper`
+  - missionGroup: `MissionGroupMapper`, `UserMissionGroupMapper`
+  - missionTask: `MissionTaskMapper`
+  - shop: `ProductMapper`
+  - user: `UserResponseMapper`, `AdminUserResponseMapper`, `ProfileImageMapper`
+
+---
+
+## 앞으로 할 리팩토링 (TODO)
 
 ### PraiseService 코드 중복 제거
 - **우선순위**: 중간

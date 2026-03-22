@@ -6,7 +6,6 @@ import org.example.hugmeexp.domain.mission.dto.request.MissionRequest;
 import org.example.hugmeexp.domain.mission.dto.response.MissionResponse;
 import org.example.hugmeexp.domain.mission.entity.*;
 import org.example.hugmeexp.domain.mission.exception.*;
-import org.example.hugmeexp.domain.mission.mapper.MissionMapper;
 import org.example.hugmeexp.domain.mission.repository.*;
 import org.example.hugmeexp.domain.missionGroup.entity.MissionGroup;
 import org.example.hugmeexp.domain.missionGroup.exception.MissionGroupNotFoundException;
@@ -25,7 +24,6 @@ import java.util.stream.Collectors;
 public class MissionServiceImpl implements MissionService {
     private final MissionRepository missionRepository;
     private final MissionGroupRepository missionGroupRepository;
-    private final MissionMapper missionMapper;
 
     private final CacheService cacheService;
     @Override
@@ -36,31 +34,37 @@ public class MissionServiceImpl implements MissionService {
             }
     )
     public MissionResponse createMission(MissionRequest missionRequest) {
-        Mission mission = missionMapper.toEntity(missionRequest);
-
         MissionGroup missionGroup = missionGroupRepository.findById(missionRequest.getMissionGroupId())
                 .orElseThrow(MissionGroupNotFoundException::new);
 
-        mission = mission.toBuilder()
+        Mission mission = Mission.builder()
+                .name(missionRequest.getName())
+                .description(missionRequest.getDescription())
+                .difficulty(missionRequest.getDifficulty())
+                .rewardPoint(missionRequest.getRewardPoint())
+                .rewardExp(missionRequest.getRewardExp())
+                .order(missionRequest.getOrder())
+                .line(missionRequest.getLine())
+                .tip(missionRequest.getTip())
                 .missionGroup(missionGroup)
                 .build();
 
         Mission savedMission = missionRepository.save(mission);
-        return missionMapper.toMissionResponse(savedMission);
+        return MissionResponse.from(savedMission);
     }
 
     @Override
     public MissionResponse getMissionById(Long id) {
         Mission mission = missionRepository.findById(id)
                 .orElseThrow(MissionNotFoundException::new);
-        return missionMapper.toMissionResponse(mission);
+        return MissionResponse.from(mission);
     }
 
     @Override
     public List<MissionResponse> getAllMissions() {
         List<Mission> missions = missionRepository.findAll();
         return missions.stream()
-                .map(missionMapper::toMissionResponse)
+                .map(MissionResponse::from)
                 .toList();
     }
 
@@ -87,7 +91,7 @@ public class MissionServiceImpl implements MissionService {
                 .build();
 
         Mission updatedMission = missionRepository.save(mission);
-        return missionMapper.toMissionResponse(updatedMission);
+        return MissionResponse.from(updatedMission);
     }
 
     @Override
@@ -118,7 +122,7 @@ public class MissionServiceImpl implements MissionService {
                 .build();
 
         Mission updatedMission = missionRepository.save(mission);
-        return missionMapper.toMissionResponse(updatedMission);
+        return MissionResponse.from(updatedMission);
     }
 
     @Override
@@ -130,7 +134,7 @@ public class MissionServiceImpl implements MissionService {
         List<Mission> missions = missionRepository.findMissionByMissionGroup(missionGroup);
 
         return missions.stream()
-                .map(missionMapper::toMissionResponse)
+                .map(MissionResponse::from)
                 .collect(Collectors.toList());
     }
 }

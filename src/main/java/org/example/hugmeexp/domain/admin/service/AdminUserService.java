@@ -4,7 +4,6 @@ import org.example.hugmeexp.domain.admin.dto.request.RoleChangeRequest;
 import org.example.hugmeexp.domain.admin.dto.response.AdminUserAllResponse;
 import org.example.hugmeexp.domain.admin.dto.response.AdminUserInfoResponse;
 import org.example.hugmeexp.domain.admin.dto.response.MonthlyRegistrationStatsResponse;
-import org.example.hugmeexp.domain.admin.mapper.AdminUserResponseMapper;
 import org.example.hugmeexp.domain.user.dto.request.UserUpdateRequest;
 import org.example.hugmeexp.domain.user.dto.response.UserInfoResponse;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -39,7 +38,7 @@ public class AdminUserService {
         return userRepository.findAll(pageable)
                 .map(user -> {
                     UserInfoResponse userInfo = userService.getUserInfoResponse(user);  // UserService 메서드 호출
-                    return AdminUserResponseMapper.toProfileResponse(user, userInfo);
+                    return AdminUserAllResponse.from(user, userInfo);
                 });
     }
 
@@ -49,7 +48,7 @@ public class AdminUserService {
     public AdminUserInfoResponse getUserByAdmin(String username) {
         User u = userService.findByUsername(username);
         UserInfoResponse base = userService.getUserInfoResponse(u);
-        return AdminUserResponseMapper.toInfoResponse(u, base);
+        return AdminUserInfoResponse.from(u, base);
     }
 
     /** 3) 회원 정보 수정 */
@@ -62,7 +61,7 @@ public class AdminUserService {
     public AdminUserInfoResponse updateUserByAdmin(String username, UserUpdateRequest req) {
         User u = userService.findByUsername(username);
         UserInfoResponse updatedBase = userService.updateUserInfo(u, req);
-        return AdminUserResponseMapper.toInfoResponse(u, updatedBase);
+        return AdminUserInfoResponse.from(u, updatedBase);
     }
 
     /** 4) 회원 삭제 */
@@ -75,7 +74,7 @@ public class AdminUserService {
     public AdminUserInfoResponse deleteUserByAdmin(String username) {
         User u = userService.findByUsername(username);
         UserInfoResponse deletedBase = userService.getUserInfoResponse(u);
-        AdminUserInfoResponse response = AdminUserResponseMapper.toInfoResponse(u, deletedBase);
+        AdminUserInfoResponse response = AdminUserInfoResponse.from(u, deletedBase);
         userService.deleteByUsername(username);
         return response;
     }
@@ -91,7 +90,7 @@ public class AdminUserService {
         User u = userService.findByUsername(username);
         u.changeRole(req.getRole());
         UserInfoResponse base = userService.getUserInfoResponse(u);
-        return AdminUserResponseMapper.toInfoResponse(u, base);
+        return AdminUserInfoResponse.from(u, base);
     }
 
     /**

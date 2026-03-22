@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import lombok.NoArgsConstructor;
+import org.example.hugmeexp.domain.missionGroup.entity.UserMissionGroup;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
 @Data
 @Builder(toBuilder = true)
@@ -16,4 +17,12 @@ public class UserMissionGroupResponse {
     private Long id;
     private UserProfileResponse user;
     private MissionGroupResponse missionGroup;
+
+    public static UserMissionGroupResponse from(UserMissionGroup userMissionGroup) {
+        return UserMissionGroupResponse.builder()
+                .id(userMissionGroup.getId())
+                .user(UserProfileResponse.from(userMissionGroup.getUser()))
+                .missionGroup(MissionGroupResponse.from(userMissionGroup.getMissionGroup()))
+                .build();
+    }
 }

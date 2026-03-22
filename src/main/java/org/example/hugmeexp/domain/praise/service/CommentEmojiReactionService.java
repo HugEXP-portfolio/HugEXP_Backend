@@ -7,7 +7,6 @@ import org.example.hugmeexp.domain.praise.dto.response.CommentEmojiReactionRespo
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.entity.CommentEmojiReaction;
 import org.example.hugmeexp.domain.praise.exception.*;
-import org.example.hugmeexp.domain.praise.mapper.CommentEmojiReactionMapper;
 import org.example.hugmeexp.domain.praise.repository.CommentEmojiReactionRepository;
 import org.example.hugmeexp.domain.praise.repository.CommentRepository;
 import org.example.hugmeexp.domain.praise.repository.PraiseRepository;
@@ -23,7 +22,6 @@ public class CommentEmojiReactionService {
     private final CommentEmojiReactionRepository commentEmojiReactionRepository;
     private final PraiseRepository praiseRepository;
     private final CommentRepository commentRepository;
-    private final CommentEmojiReactionMapper commentEmojiReactionMapper;
 
     /* 이모지 유효성 검사 */
     private boolean isValidEmoji(String input) {
@@ -61,7 +59,11 @@ public class CommentEmojiReactionService {
         }
 
         // 반응 생성 및 저장
-        CommentEmojiReaction commentEmojiReaction = commentEmojiReactionMapper.toEntity(commentEmojiReactionRequestDTO,comment,user);
+        CommentEmojiReaction commentEmojiReaction = CommentEmojiReaction.builder()
+                .comment(comment)
+                .reactorWriter(user)
+                .emoji(commentEmojiReactionRequestDTO.getEmoji())
+                .build();
 
         commentEmojiReactionRepository.save(commentEmojiReaction);
 

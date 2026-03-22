@@ -1,6 +1,7 @@
 package org.example.hugmeexp.domain.mission.dto.response;
 
 import lombok.*;
+import org.example.hugmeexp.domain.mission.entity.Submission;
 
 @Data
 @NoArgsConstructor
@@ -18,4 +19,14 @@ public class SubmissionResponse {
     private String comment;
 
     private String feedback;
+
+    public static SubmissionResponse from(Submission submission) {
+        return SubmissionResponse.builder()
+                .id(submission.getId())
+                .fileName(submission.getFileName())
+                .originalFileName(submission.getOriginalFileName())
+                .comment(submission.getComment())
+                .feedback(submission.getFeedback())
+                .build();
+    }
 }
