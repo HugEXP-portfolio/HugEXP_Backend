@@ -24,6 +24,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class QuestService {
 
+    private static final int QUEST_COMPLETE_POINT = 50;
+    private static final int QUEST_COMPLETE_EXP = 10;
+
     private final UserQuestRepository userQuestRepository;
     private final UserRepository userRepository;
     private final UserService userService;
@@ -65,8 +68,8 @@ public class QuestService {
         // 퀘스트 완료 후 응답 DTO로 변환하여 반환 및 사용자의 포인트 증가
         userQuest.complete();
         User completeUser = userQuest.getUser();
-        userService.increasePoint(completeUser, 50);
-        userService.increaseExp(completeUser, 10);
+        userService.increasePoint(completeUser, QUEST_COMPLETE_POINT);
+        userService.increaseExp(completeUser, QUEST_COMPLETE_EXP);
         UserQuest savedUserQuest = userQuestRepository.save(userQuest);
         return UserQuestResponse.from(savedUserQuest);
     }
