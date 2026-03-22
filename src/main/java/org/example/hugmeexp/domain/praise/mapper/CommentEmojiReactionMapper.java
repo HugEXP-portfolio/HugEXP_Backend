@@ -1,8 +1,8 @@
 package org.example.hugmeexp.domain.praise.mapper;
 
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionResponseDTO;
-import org.example.hugmeexp.domain.praise.dto.ReactionUserDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentEmojiReactionResponse;
+import org.example.hugmeexp.domain.praise.dto.response.ReactionUser;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.entity.CommentEmojiReaction;
 import org.example.hugmeexp.domain.user.entity.User;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Mapper(componentModel = "spring")
 public interface CommentEmojiReactionMapper {
 
-    default CommentEmojiReaction toEntity(CommentEmojiReactionRequestDTO commentEmojiReactionRequestDTO, PraiseComment comment, User user){
+    default CommentEmojiReaction toEntity(CommentEmojiReactionRequest commentEmojiReactionRequestDTO, PraiseComment comment, User user){
         return CommentEmojiReaction.builder()
                 .comment(comment)
                 .reactorWriter(user)
@@ -21,11 +21,11 @@ public interface CommentEmojiReactionMapper {
                 .build();
     }
 
-    default CommentEmojiReactionResponseDTO toDTO(CommentEmojiReaction commentEmojiReaction){
-        return CommentEmojiReactionResponseDTO.builder()
+    default CommentEmojiReactionResponse toDTO(CommentEmojiReaction commentEmojiReaction){
+        return CommentEmojiReactionResponse.builder()
                 .id(commentEmojiReaction.getId())
                 .commentId(commentEmojiReaction.getComment().getId())
-                .reactorName(ReactionUserDTO.builder()
+                .reactorName(ReactionUser.builder()
                         .id(commentEmojiReaction.getReactorWriter().getId())
                         .username(commentEmojiReaction.getReactorWriter().getUsername())
                         .name(commentEmojiReaction.getReactorWriter().getName())

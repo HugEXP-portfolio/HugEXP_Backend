@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
 import org.example.hugmeexp.domain.recruitment.exception.DuplicateRecruitmentBookmarkException;
 import org.example.hugmeexp.domain.recruitment.exception.RecruitmentNotFoundException;
 import org.example.hugmeexp.domain.recruitment.service.RecruitmentBookmarkService;
@@ -86,7 +86,7 @@ public class RecruitmentBookmarkController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "200",
                 description = "즐겨찾기 목록 조회 성공",
-                content = @Content(schema = @Schema(implementation = RecruitmentResponseDTO.class))
+                content = @Content(schema = @Schema(implementation = RecruitmentResponse.class))
             ),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "404",
@@ -99,12 +99,12 @@ public class RecruitmentBookmarkController {
         }
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RecruitmentResponseDTO>>> getRecruitmentBookmarks(
+    public ResponseEntity<ApiResponse<List<RecruitmentResponse>>> getRecruitmentBookmarks(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        List<RecruitmentResponseDTO> recruitmentBookmarks = recruitmentBookmarkService.getRecruitmentBookmarks(userDetails.getUser().getId());
+        List<RecruitmentResponse> recruitmentBookmarks = recruitmentBookmarkService.getRecruitmentBookmarks(userDetails.getUser().getId());
 
-        ApiResponse<List<RecruitmentResponseDTO>> response = ApiResponse.success("즐겨찾기 목록 조회 성공", recruitmentBookmarks);
+        ApiResponse<List<RecruitmentResponse>> response = ApiResponse.success("즐겨찾기 목록 조회 성공", recruitmentBookmarks);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

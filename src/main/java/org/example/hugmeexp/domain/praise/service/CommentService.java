@@ -1,8 +1,8 @@
 package org.example.hugmeexp.domain.praise.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.hugmeexp.domain.praise.dto.CommentRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentResponse;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.exception.CommentNotFoundException;
@@ -29,7 +29,7 @@ public class CommentService {
 
     /* 댓글 작성 */
     @Transactional
-    public CommentResponseDTO createComment(Long praiseId, CommentRequestDTO commentRequestDTO, User commentWriter) {
+    public CommentResponse createComment(Long praiseId, CommentRequest commentRequestDTO, User commentWriter) {
 
         // Praise 엔티티 조회
         Praise praise = praiseRepository.findById(praiseId).orElseThrow(() -> new PraiseNotFoundException());

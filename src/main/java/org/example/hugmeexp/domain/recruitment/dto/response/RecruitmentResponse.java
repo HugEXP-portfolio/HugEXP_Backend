@@ -1,0 +1,65 @@
+package org.example.hugmeexp.domain.recruitment.dto.response;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Getter
+@NoArgsConstructor
+@Builder
+public class RecruitmentResponse {
+
+    private Long id;
+    private String recruitmentSourceId;
+    private String title;
+    private String companyName;
+    private String companyImageUrl;
+    private LocalDateTime dueDate;
+    private Integer experienceMin;
+    private Integer experienceMax;
+    private String workLocation;
+    private BigDecimal latitude; // 위도
+    private BigDecimal longitude; // 경도
+
+    private LocalDateTime modifiedAt;
+
+    // JPA 에서 사용되는 생성자
+    public RecruitmentResponse(Long id, String recruitmentSourceId, String title, String companyName, String companyImageUrl,
+                                  LocalDateTime dueDate, Integer experienceMin, Integer experienceMax, String workLocation,
+                                  BigDecimal latitude, BigDecimal longitude, LocalDateTime modifiedAt) {
+        this.id = id;
+        this.recruitmentSourceId = recruitmentSourceId;
+        this.title = title;
+        this.companyName = companyName;
+        this.companyImageUrl = companyImageUrl;
+        this.dueDate = dueDate;
+        this.experienceMin = experienceMin;
+        this.experienceMax = experienceMax;
+        this.workLocation = workLocation;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.modifiedAt = modifiedAt;
+    }
+
+    // 서비스 단에서 Recruitment 엔티티를 DTO로 변환하는 메서드
+    public static RecruitmentResponse from(Recruitment recruitment) {
+        return RecruitmentResponse.builder()
+                .id(recruitment.getId())
+                .recruitmentSourceId(recruitment.getRecruitmentSourceId())
+                .title(recruitment.getTitle())
+                .companyName(recruitment.getCompany().getCompanyName())
+                .companyImageUrl(recruitment.getCompany().getCompanyImageUrl())
+                .dueDate(recruitment.getDueDate())
+                .experienceMin(recruitment.getExperienceMin())
+                .experienceMax(recruitment.getExperienceMax())
+                .workLocation(recruitment.getWorkLocation())
+                .latitude(recruitment.getCompany().getLatitude())
+                .longitude(recruitment.getCompany().getLongitude())
+                .modifiedAt(recruitment.getModifiedAt())
+                .build();
+    }
+}

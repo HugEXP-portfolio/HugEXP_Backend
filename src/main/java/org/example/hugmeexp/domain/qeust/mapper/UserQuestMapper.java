@@ -1,6 +1,6 @@
 package org.example.hugmeexp.domain.qeust.mapper;
 
-import org.example.hugmeexp.domain.qeust.dto.UserQuestResponse;
+import org.example.hugmeexp.domain.qeust.dto.response.UserQuestResponse;
 import org.example.hugmeexp.domain.qeust.entity.UserQuest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

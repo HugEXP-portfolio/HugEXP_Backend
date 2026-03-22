@@ -1,7 +1,7 @@
 package org.example.hugmeexp.domain.praise.service;
 
-import org.example.hugmeexp.domain.praise.dto.CommentRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentResponse;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseComment;
 import org.example.hugmeexp.domain.praise.exception.CommentNotFoundException;
@@ -53,7 +53,7 @@ class CommentServiceTest {
     void testCreateComment_Success() {
         // given
         Long praiseId = 1L;
-        CommentRequestDTO requestDTO = CommentRequestDTO.builder()
+        CommentRequest requestDTO = CommentRequest.builder()
                 .content("테스트 댓글 내용")
                 .build();
 
@@ -76,8 +76,8 @@ class CommentServiceTest {
                 .praise(praise)
                 .build();
 
-        // CommentResponseDTO 객체는 builder로 생성
-        CommentResponseDTO responseDTO = CommentResponseDTO.builder()
+        // CommentResponse 객체는 builder로 생성
+        CommentResponse responseDTO = CommentResponse.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .commenterName(commentWriter.getName())
@@ -90,7 +90,7 @@ class CommentServiceTest {
         when(commentMapper.toDTO(comment)).thenReturn(responseDTO);
 
         // when
-        CommentResponseDTO result = commentService.createComment(praiseId, requestDTO, commentWriter);
+        CommentResponse result = commentService.createComment(praiseId, requestDTO, commentWriter);
 
         // then
         assertNotNull(result, "댓글 작성 결과는 null이 아니어야 합니다");
@@ -110,7 +110,7 @@ class CommentServiceTest {
     void testCreateComment_PraiseNotFound() {
         // given
         Long invalidPraiseId = 999L;
-        CommentRequestDTO requestDTO = CommentRequestDTO.builder()
+        CommentRequest requestDTO = CommentRequest.builder()
                 .content("테스트 댓글 내용")
                 .build();
 

@@ -1,6 +1,18 @@
 package org.example.hugmeexp.domain.recruitment.service;
 
-import org.example.hugmeexp.domain.recruitment.dto.*;
+import org.example.hugmeexp.domain.recruitment.dto.request.CompanyRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentSearchCondition;
+import org.example.hugmeexp.domain.recruitment.dto.request.TagRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.TechItemRequest;
+import org.example.hugmeexp.domain.recruitment.dto.response.EducationOption;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentCompanySearchResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentDetailResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentFilterResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.SalaryRange;
+import org.example.hugmeexp.domain.recruitment.dto.response.TagResponse;
+import org.example.hugmeexp.domain.recruitment.dto.response.TechStackResponse;
 import org.example.hugmeexp.domain.recruitment.entity.Company;
 import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
 import org.example.hugmeexp.domain.recruitment.entity.Tag;
@@ -8,8 +20,8 @@ import org.example.hugmeexp.domain.recruitment.entity.TagItem;
 import org.example.hugmeexp.domain.recruitment.entity.TechItem;
 import org.example.hugmeexp.domain.recruitment.entity.TechStack;
 import org.example.hugmeexp.domain.recruitment.exception.RecruitmentNotFoundException;
-import org.example.hugmeexp.domain.recruitment.dto.TechItemRequestDTO;
-import org.example.hugmeexp.domain.recruitment.dto.TagRequestDTO;
+import org.example.hugmeexp.domain.recruitment.dto.request.TechItemRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.TagRequest;
 import org.example.hugmeexp.domain.recruitment.enums.SourceType;
 import org.example.hugmeexp.domain.recruitment.repository.CompanyRepository;
 import org.example.hugmeexp.domain.recruitment.repository.RecruitmentRepository;
@@ -71,7 +83,7 @@ public class RecruitmentServiceTest {
     @InjectMocks
     private RecruitmentService recruitmentService;
 
-    private RecruitmentRequestDTO recruitmentRequestDTO;
+    private RecruitmentRequest recruitmentRequestDTO;
     private Company company;
     private Recruitment recruitment;
     private TechItem techItem1, techItem2;
@@ -79,8 +91,8 @@ public class RecruitmentServiceTest {
 
     @BeforeEach
     void setUp() {
-    // 테스트용 CompanyRequestDTO 생성
-    CompanyRequestDTO companyRequestDTO = CompanyRequestDTO.builder()
+    // 테스트용 CompanyRequest 생성
+    CompanyRequest companyRequestDTO = CompanyRequest.builder()
             .companyName("테스트 회사")
             .companyAddress("서울시 강남구 테헤란로 123")
             .establishmentDate(LocalDateTime.now().toLocalDate())
@@ -90,20 +102,20 @@ public class RecruitmentServiceTest {
             .longitude(BigDecimal.valueOf(78.910))
             .build();
 
-        // 테스트용 TechItemRequestDTO 생성
-        List<TechItemRequestDTO> techItems = List.of(
-                new TechItemRequestDTO("Java", "자바", ""),
-                new TechItemRequestDTO("Spring", "스프링", "")
+        // 테스트용 TechItemRequest 생성
+        List<TechItemRequest> techItems = List.of(
+                new TechItemRequest("Java", "자바", ""),
+                new TechItemRequest("Spring", "스프링", "")
         );
 
-        // 테스트용 TagRequestDTO 생성
-        List<TagRequestDTO> tags = List.of(
-                new TagRequestDTO("신입"),
-                new TagRequestDTO("정규직")
+        // 테스트용 TagRequest 생성
+        List<TagRequest> tags = List.of(
+                new TagRequest("신입"),
+                new TagRequest("정규직")
         );
 
-        // 테스트용 RecruitmentRequestDTO 생성
-        recruitmentRequestDTO = new RecruitmentRequestDTO();
+        // 테스트용 RecruitmentRequest 생성
+        recruitmentRequestDTO = new RecruitmentRequest();
         recruitmentRequestDTO.setRecruitmentSourceId("TEST_001");
         recruitmentRequestDTO.setTitle("백엔드 개발자 모집");
         recruitmentRequestDTO.setEducation(4);
@@ -191,7 +203,7 @@ public class RecruitmentServiceTest {
     @DisplayName("모든 파라미터가 제공된 경우 테스트")
     void listRecruitments_AllParamsProvided_ShouldCallRepositoryWithCorrectParams() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .salaryMin(3000)
                 .salaryMax(5000)
                 .experienceMin(3)
@@ -208,14 +220,14 @@ public class RecruitmentServiceTest {
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -229,23 +241,23 @@ public class RecruitmentServiceTest {
     @DisplayName("파라미터가 없는 경우 테스트")
     void listRecruitments_NoParams_ShouldPassNullValues() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder().build();
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder().build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
         verify(recruitmentRepository).findBySearchConditions(
-            any(RecruitmentSearchConditionDTO.class),
+            any(RecruitmentSearchCondition.class),
             argThat(pageable -> pageable.getPageNumber() == page && pageable.getPageSize() == 80)
         );
     }
@@ -254,7 +266,7 @@ public class RecruitmentServiceTest {
     @DisplayName("일부 파라미터만 제공된 경우 테스트")
     void listRecruitments_SomeParams_ShouldPassCorrectValues() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .salaryMin(3000)
                 .salaryMax(5000)
                 .experienceMin(2)
@@ -263,19 +275,19 @@ public class RecruitmentServiceTest {
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
         verify(recruitmentRepository).findBySearchConditions(
-            any(RecruitmentSearchConditionDTO.class),
+            any(RecruitmentSearchCondition.class),
             argThat(pageable -> pageable.getPageNumber() == page && pageable.getPageSize() == 80)
         );
     }
@@ -284,7 +296,7 @@ public class RecruitmentServiceTest {
     @DisplayName("techStacks와 tags가 null인 경우 테스트")
     void listRecruitments_NullTechStacksAndTags_ShouldPassNullCounts() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .salaryMin(3000)
                 .salaryMax(5000)
                 .experienceMin(1)
@@ -295,14 +307,14 @@ public class RecruitmentServiceTest {
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -316,21 +328,21 @@ public class RecruitmentServiceTest {
     @DisplayName("techStacks와 tags가 빈 리스트인 경우 테스트")
     void listRecruitments_EmptyTechStacksAndTags_ShouldPassZeroCounts() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .techStacks(List.of())
                 .tags(List.of())
                 .build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -344,21 +356,21 @@ public class RecruitmentServiceTest {
     @DisplayName("techStacks는 있고 tags는 null인 경우 테스트")
     void listRecruitments_WithTechStacksNullTags_ShouldPassCorrectCounts() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .techStacks(List.of(1L, 2L, 3L))
                 .tags(null)
                 .build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -372,21 +384,21 @@ public class RecruitmentServiceTest {
     @DisplayName("techStacks는 null이고 tags는 있는 경우 테스트")
     void listRecruitments_NullTechStacksWithTags_ShouldPassCorrectCounts() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .techStacks(null)
                 .tags(List.of(1L, 2L))
                 .build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -400,14 +412,14 @@ public class RecruitmentServiceTest {
     @DisplayName("채용 공고 목록 조회 - 페이지네이션 테스트 (80 항목)")
     void listRecruitments_ShouldReturnPageWith80Items() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder().build();
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder().build();
         int page = 0;
         int size = 80;
 
         // 130개의 아이템을 생성 (80개만 반환되어야 함)
-        List<RecruitmentResponseDTO> mockItems = new ArrayList<>();
+        List<RecruitmentResponse> mockItems = new ArrayList<>();
         for (int i = 1; i <= 130; i++) {
-            mockItems.add(new RecruitmentResponseDTO(
+            mockItems.add(new RecruitmentResponse(
                 (long) i, "test::" + i, "개발자 모집 " + i, "회사 " + i, "image_" + i + ".jpg",
                 LocalDateTime.now().plusDays(30), // 만료되지 않은 공고
                 2, 5, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -416,24 +428,24 @@ public class RecruitmentServiceTest {
         }
 
         // 첫 페이지에는 80개의 아이템만 포함되어야 함
-        Page<RecruitmentResponseDTO> mockPage = new PageImpl<>(
+        Page<RecruitmentResponse> mockPage = new PageImpl<>(
             mockItems.subList(0, 80),
             PageRequest.of(page, 80),
             mockItems.size()
         );
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(mockPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(80, result.getContent().size()); // 페이지당 80개 항목
         assertEquals(130, result.getTotalElements()); // 전체 130개 항목
         assertEquals(2, result.getTotalPages()); // 총 2페이지 (80 + 10)
         verify(recruitmentRepository).findBySearchConditions(
-            any(RecruitmentSearchConditionDTO.class),
+            any(RecruitmentSearchCondition.class),
             argThat(pageable -> pageable.getPageSize() == 80)
         );
     }
@@ -442,14 +454,14 @@ public class RecruitmentServiceTest {
     @DisplayName("채용 공고 목록 조회 - 최신순 정렬 테스트")
     void listRecruitments_ShouldReturnSortedByModifiedAtDesc() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder().build();
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder().build();
         int page = 0;
         int size = 80;
 
         // 여러 날짜의 수정일을 가진 아이템 생성
-        List<RecruitmentResponseDTO> mockItems = new ArrayList<>();
+        List<RecruitmentResponse> mockItems = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
-            mockItems.add(new RecruitmentResponseDTO(
+            mockItems.add(new RecruitmentResponse(
                 (long) i, "test::" + i, "개발자 모집 " + i, "회사 " + i, "image_" + i + ".jpg",
                 LocalDateTime.now().plusDays(30),
                 2, 5, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -457,15 +469,15 @@ public class RecruitmentServiceTest {
             ));
         }
 
-        Page<RecruitmentResponseDTO> mockPage = createMockResponsePage(mockItems, page, size);
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        Page<RecruitmentResponse> mockPage = createMockResponsePage(mockItems, page, size);
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(mockPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
-        List<RecruitmentResponseDTO> content = result.getContent();
+        List<RecruitmentResponse> content = result.getContent();
 
         // 결과가 수정일 기준 내림차순으로 정렬되어 있는지 확인
         for (int i = 0; i < content.size() - 1; i++) {
@@ -480,16 +492,16 @@ public class RecruitmentServiceTest {
     @DisplayName("채용 공고 목록 조회 - 만료된 공고 제외 테스트")
     void listRecruitments_ShouldExcludeExpiredRecruitments() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder().build();
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder().build();
         int page = 0;
         int size = 80;
 
         // 만료된 공고와 유효한 공고를 모두 포함하는 목록 생성
-        List<RecruitmentResponseDTO> allItems = new ArrayList<>();
+        List<RecruitmentResponse> allItems = new ArrayList<>();
 
         // 만료된 공고 (dueDate가 현재보다 이전)
         for (int i = 1; i <= 5; i++) {
-            allItems.add(new RecruitmentResponseDTO(
+            allItems.add(new RecruitmentResponse(
                 (long) i, "expired::" + i, "만료된 공고 " + i, "회사 " + i, "image_" + i + ".jpg",
                 LocalDateTime.now().minusDays(i), // 만료된 공고
                 2, 5, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -498,9 +510,9 @@ public class RecruitmentServiceTest {
         }
 
         // 유효한 공고 (dueDate가 현재보다 이후)
-        List<RecruitmentResponseDTO> validItems = new ArrayList<>();
+        List<RecruitmentResponse> validItems = new ArrayList<>();
         for (int i = 6; i <= 10; i++) {
-            RecruitmentResponseDTO validItem = new RecruitmentResponseDTO(
+            RecruitmentResponse validItem = new RecruitmentResponse(
                 (long) i, "valid::" + i, "유효한 공고 " + i, "회사 " + i, "image_" + i + ".jpg",
                 LocalDateTime.now().plusDays(i), // 유효한 공고
                 2, 5, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -511,19 +523,19 @@ public class RecruitmentServiceTest {
         }
 
         // 레포지토리는 이미 만료된 공고를 필터링한 결과를 반환해야 함
-        Page<RecruitmentResponseDTO> mockPage = createMockResponsePage(validItems, page, size);
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        Page<RecruitmentResponse> mockPage = createMockResponsePage(validItems, page, size);
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(mockPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(5, result.getContent().size()); // 유효한 공고만 5개
 
         // 모든 공고의 dueDate가 현재 시간 이후인지 확인
         LocalDateTime now = LocalDateTime.now();
-        for (RecruitmentResponseDTO item : result.getContent()) {
+        for (RecruitmentResponse item : result.getContent()) {
             assertTrue(item.getDueDate().isAfter(now), 
                     "모든 공고는 현재 시간 이후의 dueDate를 가져야 합니다");
             assertTrue(item.getRecruitmentSourceId().startsWith("valid::"), 
@@ -536,7 +548,7 @@ public class RecruitmentServiceTest {
     void listRecruitments_ShouldFilterByExperienceRange() {
         // Given
         // 경력 범위 3-5년으로 검색 조건 설정
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .experienceMin(3)
                 .experienceMax(5)
                 .build();
@@ -544,10 +556,10 @@ public class RecruitmentServiceTest {
         int size = 80;
 
         // 다양한 경력 범위를 가진 공고 생성
-        List<RecruitmentResponseDTO> allItems = new ArrayList<>();
+        List<RecruitmentResponse> allItems = new ArrayList<>();
 
         // 1. 경력 범위가 1-2년 (조건에 맞지 않음)
-        allItems.add(new RecruitmentResponseDTO(
+        allItems.add(new RecruitmentResponse(
             1L, "exp::1", "경력 1-2년 공고", "회사 1", "image_1.jpg",
             LocalDateTime.now().plusDays(30),
             1, 2, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -555,7 +567,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 2. 경력 범위가 2-4년 (조건과 겹침 - 포함되어야 함)
-        RecruitmentResponseDTO overlapping1 = new RecruitmentResponseDTO(
+        RecruitmentResponse overlapping1 = new RecruitmentResponse(
             2L, "exp::2", "경력 2-4년 공고", "회사 2", "image_2.jpg",
             LocalDateTime.now().plusDays(30),
             2, 4, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -564,7 +576,7 @@ public class RecruitmentServiceTest {
         allItems.add(overlapping1);
 
         // 3. 경력 범위가 3-5년 (조건과 정확히 일치 - 포함되어야 함)
-        RecruitmentResponseDTO exact = new RecruitmentResponseDTO(
+        RecruitmentResponse exact = new RecruitmentResponse(
             3L, "exp::3", "경력 3-5년 공고", "회사 3", "image_3.jpg",
             LocalDateTime.now().plusDays(30),
             3, 5, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -573,7 +585,7 @@ public class RecruitmentServiceTest {
         allItems.add(exact);
 
         // 4. 경력 범위가 4-6년 (조건과 겹침 - 포함되어야 함)
-        RecruitmentResponseDTO overlapping2 = new RecruitmentResponseDTO(
+        RecruitmentResponse overlapping2 = new RecruitmentResponse(
             4L, "exp::4", "경력 4-6년 공고", "회사 4", "image_4.jpg",
             LocalDateTime.now().plusDays(30),
             4, 6, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -582,7 +594,7 @@ public class RecruitmentServiceTest {
         allItems.add(overlapping2);
 
         // 5. 경력 범위가 6-8년 (조건에 맞지 않음)
-        allItems.add(new RecruitmentResponseDTO(
+        allItems.add(new RecruitmentResponse(
             5L, "exp::5", "경력 6-8년 공고", "회사 5", "image_5.jpg",
             LocalDateTime.now().plusDays(30),
             6, 8, "서울시", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -590,21 +602,21 @@ public class RecruitmentServiceTest {
         ));
 
         // 조건에 맞는 공고만 포함하는 리스트
-        List<RecruitmentResponseDTO> matchingItems = List.of(overlapping1, exact, overlapping2);
+        List<RecruitmentResponse> matchingItems = List.of(overlapping1, exact, overlapping2);
 
         // 레포지토리는 이미 경력 범위로 필터링한 결과를 반환해야 함
-        Page<RecruitmentResponseDTO> mockPage = createMockResponsePage(matchingItems, page, size);
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        Page<RecruitmentResponse> mockPage = createMockResponsePage(matchingItems, page, size);
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(mockPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(3, result.getContent().size()); // 조건에 맞는 공고 3개
 
         // 모든 공고가 경력 범위 조건과 겹치는지 확인
-        for (RecruitmentResponseDTO item : result.getContent()) {
+        for (RecruitmentResponse item : result.getContent()) {
             boolean rangeOverlaps = 
                 (item.getExperienceMax() >= condition.getExperienceMin() && 
                  item.getExperienceMin() <= condition.getExperienceMax());
@@ -619,11 +631,11 @@ public class RecruitmentServiceTest {
     void findLatestRecruitments_ShouldReturnSortedByModifiedAtWithPagination() {
         // Given
         int limit = 5; // 페이지 크기 제한
-        List<RecruitmentResponseDTO> mockResponseList = createSortedByModifiedAtMockResponseList();
+        List<RecruitmentResponse> mockResponseList = createSortedByModifiedAtMockResponseList();
         when(recruitmentRepository.findLatestRecruitments(any(Pageable.class))).thenReturn(mockResponseList.subList(0, 5));
 
         // When
-        List<RecruitmentResponseDTO> result = recruitmentService.findLatestRecruitments(limit);
+        List<RecruitmentResponse> result = recruitmentService.findLatestRecruitments(limit);
 
         // Then
         assertEquals(5, result.size()); // 결과가 5개만 반환되는지 확인
@@ -639,11 +651,11 @@ public class RecruitmentServiceTest {
     }
 
     // 테스트용 응답 DTO 리스트 생성 헬퍼 메소드
-    private List<RecruitmentResponseDTO> createMockResponseList() {
-        List<RecruitmentResponseDTO> responses = new ArrayList<>();
+    private List<RecruitmentResponse> createMockResponseList() {
+        List<RecruitmentResponse> responses = new ArrayList<>();
 
         // 첫 번째 응답 DTO
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 1L, "test::1001", "백엔드 개발자 모집", "ABC 회사", "company_image_url_1.jpg",
                 LocalDateTime.of(2023, 12, 31, 23, 59),
                 3, 5, "서울시 강남구", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -651,7 +663,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 두 번째 응답 DTO
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 2L, "test::1002", "프론트엔드 개발자 모집", "XYZ 회사", "company_image_url_2.jpg",
                 LocalDateTime.of(2023, 11, 30, 23, 59),
                 2, 4, "서울시 서초구", new BigDecimal("37.4"), new BigDecimal("127.1"),
@@ -662,17 +674,17 @@ public class RecruitmentServiceTest {
     }
 
     // 테스트용 Page 객체 생성 헬퍼 메소드
-    private Page<RecruitmentResponseDTO> createMockResponsePage(List<RecruitmentResponseDTO> content, int page, int size) {
+    private Page<RecruitmentResponse> createMockResponsePage(List<RecruitmentResponse> content, int page, int size) {
         return new PageImpl<>(content, PageRequest.of(page, size), content.size());
     }
 
     // 수정일 기준 내림차순으로 정렬된 테스트용 응답 DTO 리스트 생성 헬퍼 메소드
     // 페이지네이션 테스트를 위해 8개의 아이템을 생성 (5개만 반환되어야 함)
-    private List<RecruitmentResponseDTO> createSortedByModifiedAtMockResponseList() {
-        List<RecruitmentResponseDTO> responses = new ArrayList<>();
+    private List<RecruitmentResponse> createSortedByModifiedAtMockResponseList() {
+        List<RecruitmentResponse> responses = new ArrayList<>();
 
         // 1. 가장 최근에 수정된 공고 (1일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 1L, "test::1001", "백엔드 개발자 모집", "ABC 회사", "company_image_url_1.jpg",
                 LocalDateTime.of(2023, 12, 31, 23, 59),
                 3, 5, "서울시 강남구", new BigDecimal("37.5"), new BigDecimal("127.0"),
@@ -680,7 +692,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 2. 두 번째로 최근에 수정된 공고 (3일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 2L, "test::1002", "프론트엔드 개발자 모집", "XYZ 회사", "company_image_url_2.jpg",
                 LocalDateTime.of(2023, 11, 30, 23, 59),
                 2, 4, "서울시 서초구", new BigDecimal("37.4"), new BigDecimal("127.1"),
@@ -688,7 +700,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 3. 세 번째로 최근에 수정된 공고 (5일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 3L, "test::1003", "데이터 엔지니어 모집", "DEF 회사", "company_image_url_3.jpg",
                 LocalDateTime.of(2023, 12, 15, 23, 59),
                 5, 7, "서울시 송파구", new BigDecimal("37.6"), new BigDecimal("127.2"),
@@ -696,7 +708,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 4. 네 번째로 최근에 수정된 공고 (7일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 4L, "test::1004", "모바일 개발자 모집", "GHI 회사", "company_image_url_4.jpg",
                 LocalDateTime.of(2023, 12, 20, 23, 59),
                 4, 6, "서울시 마포구", new BigDecimal("37.55"), new BigDecimal("126.9"),
@@ -704,7 +716,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 5. 다섯 번째로 최근에 수정된 공고 (10일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 5L, "test::1005", "DevOps 엔지니어 모집", "JKL 회사", "company_image_url_5.jpg",
                 LocalDateTime.of(2023, 12, 25, 23, 59),
                 2, 4, "서울시 영등포구", new BigDecimal("37.52"), new BigDecimal("126.93"),
@@ -712,7 +724,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 6. 여섯 번째로 최근에 수정된 공고 (14일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 6L, "test::1006", "QA 엔지니어 모집", "MNO 회사", "company_image_url_6.jpg",
                 LocalDateTime.of(2023, 12, 10, 23, 59),
                 3, 5, "서울시 강동구", new BigDecimal("37.53"), new BigDecimal("127.12"),
@@ -720,7 +732,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 7. 일곱 번째로 최근에 수정된 공고 (20일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 7L, "test::1007", "보안 엔지니어 모집", "PQR 회사", "company_image_url_7.jpg",
                 LocalDateTime.of(2023, 12, 5, 23, 59),
                 6, 8, "서울시 성동구", new BigDecimal("37.54"), new BigDecimal("127.05"),
@@ -728,7 +740,7 @@ public class RecruitmentServiceTest {
         ));
 
         // 8. 여덟 번째로 최근에 수정된 공고 (30일 전)
-        responses.add(new RecruitmentResponseDTO(
+        responses.add(new RecruitmentResponse(
                 8L, "test::1008", "시스템 엔지니어 모집", "STU 회사", "company_image_url_8.jpg",
                 LocalDateTime.of(2023, 11, 15, 23, 59),
                 4, 6, "서울시 중구", new BigDecimal("37.56"), new BigDecimal("126.98"),
@@ -829,7 +841,7 @@ public class RecruitmentServiceTest {
         when(recruitmentRepository.findDetailById(recruitmentId)).thenReturn(Optional.of(recruitment));
 
         // When
-        RecruitmentDetailResponseDTO result = recruitmentService.getRecruitmentDetail(recruitmentId);
+        RecruitmentDetailResponse result = recruitmentService.getRecruitmentDetail(recruitmentId);
 
         // Then
         assertNotNull(result);
@@ -854,12 +866,12 @@ public class RecruitmentServiceTest {
         // 기술 스택 검증
         assertEquals(2, result.getTechStacks().size());
 
-        TechStackDTO techStackDTO1 = result.getTechStacks().get(0);
+        TechStackResponse techStackDTO1 = result.getTechStacks().get(0);
         assertEquals("자바", techStackDTO1.getLabelKo());
         assertEquals("Java", techStackDTO1.getLabelEn());
         assertEquals("java_icon.png", techStackDTO1.getIconUrl());
 
-        TechStackDTO techStackDTO2 = result.getTechStacks().get(1);
+        TechStackResponse techStackDTO2 = result.getTechStacks().get(1);
         assertEquals("스프링", techStackDTO2.getLabelKo());
         assertEquals("Spring", techStackDTO2.getLabelEn());
         assertEquals("spring_icon.png", techStackDTO2.getIconUrl());
@@ -919,7 +931,7 @@ public class RecruitmentServiceTest {
         when(recruitmentRepository.findByKeyword(keyword, PageRequest.of(0, limit))).thenReturn(mockRecruitments);
 
         // When
-        List<RecruitmentCompanySearchResponseDTO> result = recruitmentService.findByKeyword(keyword, limit);
+        List<RecruitmentCompanySearchResponse> result = recruitmentService.findByKeyword(keyword, limit);
 
         // Then
         assertEquals(1, result.size());
@@ -968,7 +980,7 @@ public class RecruitmentServiceTest {
         when(recruitmentRepository.findByKeyword(keyword, PageRequest.of(0, limit))).thenReturn(mockRecruitments);
 
         // When
-        List<RecruitmentCompanySearchResponseDTO> result = recruitmentService.findByKeyword(keyword, limit);
+        List<RecruitmentCompanySearchResponse> result = recruitmentService.findByKeyword(keyword, limit);
 
         // Then
         assertEquals(1, result.size());
@@ -992,7 +1004,7 @@ public class RecruitmentServiceTest {
         when(recruitmentRepository.findByKeyword(keyword, PageRequest.of(0, limit))).thenReturn(List.of());
 
         // When
-        List<RecruitmentCompanySearchResponseDTO> result = recruitmentService.findByKeyword(keyword, limit);
+        List<RecruitmentCompanySearchResponse> result = recruitmentService.findByKeyword(keyword, limit);
 
         // Then
         assertTrue(result.isEmpty());
@@ -1080,7 +1092,7 @@ public class RecruitmentServiceTest {
         when(recruitmentRepository.findByKeyword(keyword, PageRequest.of(0, limit))).thenReturn(mockRecruitments);
 
         // When
-        List<RecruitmentCompanySearchResponseDTO> result = recruitmentService.findByKeyword(keyword, limit);
+        List<RecruitmentCompanySearchResponse> result = recruitmentService.findByKeyword(keyword, limit);
 
         // Then
         assertEquals(2, result.size());
@@ -1094,20 +1106,20 @@ public class RecruitmentServiceTest {
     void listRecruitments_WithKeyword_ShouldFilterByKeyword() {
         // Given
         String keyword = "백엔드";
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .keyword(keyword)
                 .build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -1121,20 +1133,20 @@ public class RecruitmentServiceTest {
     @DisplayName("빈 키워드로 채용 공고 필터링 테스트")
     void listRecruitments_WithEmptyKeyword_ShouldPassNullKeyword() {
         // Given
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .keyword("")
                 .build();
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -1149,7 +1161,7 @@ public class RecruitmentServiceTest {
     void listRecruitments_WithKeywordAndOtherConditions_ShouldFilterCorrectly() {
         // Given
         String keyword = "개발자";
-        RecruitmentSearchConditionDTO condition = RecruitmentSearchConditionDTO.builder()
+        RecruitmentSearchCondition condition = RecruitmentSearchCondition.builder()
                 .keyword(keyword)
                 .salaryMin(3000)
                 .salaryMax(5000)
@@ -1161,14 +1173,14 @@ public class RecruitmentServiceTest {
 
         int page = 0;
         int size = 80;
-        List<RecruitmentResponseDTO> expectedContent = createMockResponseList();
-        Page<RecruitmentResponseDTO> expectedPage = createMockResponsePage(expectedContent, page, size);
+        List<RecruitmentResponse> expectedContent = createMockResponseList();
+        Page<RecruitmentResponse> expectedPage = createMockResponsePage(expectedContent, page, size);
 
-        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchConditionDTO.class), any(Pageable.class)))
+        when(recruitmentRepository.findBySearchConditions(any(RecruitmentSearchCondition.class), any(Pageable.class)))
             .thenReturn(expectedPage);
 
         // When
-        Page<RecruitmentResponseDTO> result = recruitmentService.listRecruitments(condition, page, size);
+        Page<RecruitmentResponse> result = recruitmentService.listRecruitments(condition, page, size);
 
         // Then
         assertEquals(expectedPage.getContent(), result.getContent());
@@ -1190,7 +1202,7 @@ public class RecruitmentServiceTest {
     @DisplayName("채용 공고 필터 옵션 조회 테스트")
     void getFilterOptions_ShouldReturnAllFilterOptions() throws Exception {
         // Given
-        List<EducationOptionDTO> educationOptions = RecruitmentService.EDUCATION_OPTIONS;
+        List<EducationOption> educationOptions = RecruitmentService.EDUCATION_OPTIONS;
         List<Integer> experienceOptions = RecruitmentService.EXPERIENCE_OPTIONS;
         List<String> workLocations = RecruitmentService.WORK_LOCATIONS;
         int defaultMinSalary = RecruitmentService.DEFAULT_MIN_SALARY;
@@ -1212,7 +1224,7 @@ public class RecruitmentServiceTest {
         when(tagItemRepository.findAll()).thenReturn(tagItems);
 
         // When
-        RecruitmentFilterResponseDTO result = recruitmentService.getFilterOptions();
+        RecruitmentFilterResponse result = recruitmentService.getFilterOptions();
 
         // Then
         assertEquals(educationOptions.size(), result.getEducationOptions().size());
@@ -1272,7 +1284,7 @@ public class RecruitmentServiceTest {
         when(tagRepository.saveAll(anySet())).thenReturn(List.of());
 
         // when
-        RecruitmentResponseDTO result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
+        RecruitmentResponse result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
 
         // then
         assertThat(result).isNotNull();
@@ -1292,7 +1304,7 @@ public class RecruitmentServiceTest {
         when(techStackRepository.saveAll(anySet())).thenReturn(List.of());
 
         // when
-        RecruitmentResponseDTO result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
+        RecruitmentResponse result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
 
         // then
         assertThat(result).isNotNull();
@@ -1322,7 +1334,7 @@ public class RecruitmentServiceTest {
         when(tagItemRepository.findAllByTagNameIn(anySet())).thenReturn(List.of(tagItem1, tagItem2));
 
         // when
-        RecruitmentResponseDTO result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
+        RecruitmentResponse result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
 
         // then
         assertThat(result).isNotNull();
@@ -1353,7 +1365,7 @@ public class RecruitmentServiceTest {
         when(techItemRepository.findAllByEnglishNameIn(anySet())).thenReturn(List.of(techItem1, techItem2));
 
         // when
-        RecruitmentResponseDTO result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
+        RecruitmentResponse result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
 
         // then
         assertThat(result).isNotNull();
@@ -1386,7 +1398,7 @@ public class RecruitmentServiceTest {
         when(tagItemRepository.findAllByTagNameIn(anySet())).thenReturn(List.of(tagItem1, tagItem2));
 
         // when
-        RecruitmentResponseDTO result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
+        RecruitmentResponse result = recruitmentService.createOrUpdateRecruitment(recruitmentRequestDTO);
 
         // then
         assertThat(result).isNotNull();

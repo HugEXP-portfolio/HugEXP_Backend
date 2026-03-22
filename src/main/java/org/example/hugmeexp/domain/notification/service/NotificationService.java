@@ -2,8 +2,8 @@ package org.example.hugmeexp.domain.notification.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.notification.dto.NotificationDeleteDTO;
-import org.example.hugmeexp.domain.notification.dto.NotificationResponseDTO;
+import org.example.hugmeexp.domain.notification.dto.request.NotificationDeleteRequest;
+import org.example.hugmeexp.domain.notification.dto.response.NotificationResponse;
 import org.example.hugmeexp.domain.notification.entity.Notification;
 import org.example.hugmeexp.domain.notification.enums.NotificationType;
 import org.example.hugmeexp.domain.notification.exception.ForbiddenNotificationAccessException;
@@ -51,7 +51,7 @@ public class NotificationService {
 
         // 삭제된 알림 정보를 프론트에 보내기 위해 DTO 변환 후 전송
         for(Notification notification : notifications) {
-            NotificationDeleteDTO deleteDTO = NotificationDeleteDTO.from(notification);
+            NotificationDeleteRequest deleteDTO = NotificationDeleteRequest.from(notification);
             try {
                 sseService.sendNotificationDeleted(user.getId(), deleteDTO);// sse로 삭제 알림
             } catch (Exception e){
@@ -77,7 +77,7 @@ public class NotificationService {
 
         // 삭제된 알림 정보를 프론트에 보내기 위해 DTO 변환 후 전송
         for(Notification notification : notifications) {
-            NotificationDeleteDTO deleteDTO = NotificationDeleteDTO.from(notification);
+            NotificationDeleteRequest deleteDTO = NotificationDeleteRequest.from(notification);
             try {
                 sseService.sendNotificationDeleted(user.getId(), deleteDTO); // sse로 삭제 알림
             } catch (Exception e) {
@@ -94,7 +94,7 @@ public class NotificationService {
         List<Notification> likeNotifications = notificationRepository.findByTargetIdAndTypeAndUser(diaryId, NotificationType.DIARY_LIKE,user);
 
         for(Notification notification : likeNotifications) {
-            NotificationDeleteDTO deleteDTO = NotificationDeleteDTO.from(notification);
+            NotificationDeleteRequest deleteDTO = NotificationDeleteRequest.from(notification);
             try {
                 sseService.sendNotificationDeleted(user.getId(), deleteDTO); // sse로 삭제 알림
             } catch (Exception e) {
@@ -107,7 +107,7 @@ public class NotificationService {
         List<Notification> commentNotifications = notificationRepository.findByTargetIdAndType(diaryId, NotificationType.DIARY_COMMENT);
 
         for(Notification notification : commentNotifications) {
-            NotificationDeleteDTO deleteDTO = NotificationDeleteDTO.from(notification);
+            NotificationDeleteRequest deleteDTO = NotificationDeleteRequest.from(notification);
             try{
                 sseService.sendNotificationDeleted(user.getId(), deleteDTO); // sse로 삭제 알림
             } catch (Exception e) {
@@ -127,7 +127,7 @@ public class NotificationService {
     private void createAndSend(User user, NotificationType type, String message, Long targetId) {
         Notification notification = Notification.of(user, type, message, targetId);
         notificationRepository.save(notification);
-        NotificationResponseDTO dto = NotificationResponseDTO.from(notification);
+        NotificationResponse dto = NotificationResponse.from(notification);
 
         try{
             sseService.sendNotification(user.getId(), dto);    // 실시간 전송
@@ -140,10 +140,10 @@ public class NotificationService {
 
     // 내 알림 목록 조회
     @Transactional(readOnly = true)
-    public List<NotificationResponseDTO> getMyNotifications(CustomUserDetails user) {
+    public List<NotificationResponse> getMyNotifications(CustomUserDetails user) {
         return notificationRepository.findByUserOrderByCreatedAtDesc(user.getUser())
                 .stream()
-                .map(NotificationResponseDTO::from)
+                .map(NotificationResponse::from)
                 .toList();
     }
 

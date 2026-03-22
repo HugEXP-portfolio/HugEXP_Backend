@@ -1,7 +1,7 @@
 package org.example.hugmeexp.domain.notification.service;
 
-import org.example.hugmeexp.domain.notification.dto.NotificationDeleteDTO;
-import org.example.hugmeexp.domain.notification.dto.NotificationResponseDTO;
+import org.example.hugmeexp.domain.notification.dto.request.NotificationDeleteRequest;
+import org.example.hugmeexp.domain.notification.dto.response.NotificationResponse;
 import org.example.hugmeexp.domain.notification.entity.Notification;
 import org.example.hugmeexp.domain.notification.enums.NotificationType;
 import org.example.hugmeexp.domain.notification.repository.NotificationRepository;
@@ -102,7 +102,7 @@ public class NotificationServiceTest {
         notificationService.sendPraiseNotification(testUser, testPraiseId);
 
         // then
-        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponseDTO.class));
+        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponse.class));
     }
 
     @Test
@@ -191,7 +191,7 @@ public class NotificationServiceTest {
         notificationService.sendDiaryCommentNotification(testUser, testDiaryTitle, testCommentId,testDiaryId);
 
         // then
-        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponseDTO.class));
+        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponse.class));
     }
 
     @Test
@@ -253,7 +253,7 @@ public class NotificationServiceTest {
         notificationService.sendDiaryLikeNotification(testUser, testDiaryTitle, testDiaryId);
 
         // then
-        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponseDTO.class));
+        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponse.class));
     }
 
     @Test
@@ -300,7 +300,7 @@ public class NotificationServiceTest {
         verify(notificationRepository).findByTargetIdAndType(testDiaryId, NotificationType.DIARY_COMMENT);
 
         // SSE 삭제 전송 확인 (각 알림마다 한 번씩)
-        verify(sseService, times(2)).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteDTO.class));
+        verify(sseService, times(2)).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteRequest.class));
 
         // 알림 삭제 확인
         verify(notificationRepository).deleteAll(notifications);
@@ -327,7 +327,7 @@ public class NotificationServiceTest {
         verify(notificationRepository).findByTargetIdAndTypeAndUser(testDiaryId, NotificationType.DIARY_LIKE, testUser);
 
         // SSE 삭제 전송 확인
-        verify(sseService).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteDTO.class));
+        verify(sseService).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteRequest.class));
 
         // 알림 삭제 확인
         verify(notificationRepository).deleteAll(notifications);
@@ -367,7 +367,7 @@ public class NotificationServiceTest {
         verify(notificationRepository).deleteAll(commentNotifications);
 
         // 각 알림에 대해 sendNotificationDeleted가 호출되므로 총 2번 호출됨을 검증
-        verify(sseService, times(2)).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteDTO.class));
+        verify(sseService, times(2)).sendNotificationDeleted(eq(testUser.getId()), any(NotificationDeleteRequest.class));
     }
 
     @Test
@@ -396,7 +396,7 @@ public class NotificationServiceTest {
         assertEquals(testUser.getId(), capturedNotification.getTargetId());
 
         // SSE 전송 확인
-        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponseDTO.class));
+        verify(sseService).sendNotification(eq(testUser.getId()), any(NotificationResponse.class));
     }
 
     @Test
@@ -421,7 +421,7 @@ public class NotificationServiceTest {
                 new org.example.hugmeexp.global.security.CustomUserDetails(testUser);
 
         // when
-        List<NotificationResponseDTO> result = notificationService.getMyNotifications(userDetails);
+        List<NotificationResponse> result = notificationService.getMyNotifications(userDetails);
 
         // then
         // 정렬 순서로 조회 확인

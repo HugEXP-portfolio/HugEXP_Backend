@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.notification.dto.NotificationResponseDTO;
+import org.example.hugmeexp.domain.notification.dto.response.NotificationResponse;
 import org.example.hugmeexp.domain.notification.service.NotificationService;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.global.common.response.ApiResponse;
@@ -28,12 +28,12 @@ public class NotificationController {
     // 알림 목록 조회
     @GetMapping
     @Operation(summary = "알림 목록 조회", description = "로그인한 사용자가 받은 알림 목록을 조회합니다.")
-    public ResponseEntity<ApiResponse<List<NotificationResponseDTO>>> getMyNotifications(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public ResponseEntity<ApiResponse<List<NotificationResponse>>> getMyNotifications(@AuthenticationPrincipal CustomUserDetails userDetails){
 
         User user = userDetails.getUser();
-        List<NotificationResponseDTO> result =  notificationService.getMyNotifications(userDetails);
+        List<NotificationResponse> result =  notificationService.getMyNotifications(userDetails);
 
-        ApiResponse<List<NotificationResponseDTO>> response = ApiResponse.success("알림 목록 조회 성공", result);
+        ApiResponse<List<NotificationResponse>> response = ApiResponse.success("알림 목록 조회 성공", result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

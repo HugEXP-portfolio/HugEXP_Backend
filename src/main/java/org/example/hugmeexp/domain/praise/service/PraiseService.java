@@ -3,7 +3,13 @@ package org.example.hugmeexp.domain.praise.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.hugmeexp.domain.notification.service.NotificationService;
-import org.example.hugmeexp.domain.praise.dto.*;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseRequest;
+import org.example.hugmeexp.domain.praise.dto.response.EmojiReactionGroup;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseDetailResponse;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseRatioResponse;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseResponse;
+import org.example.hugmeexp.domain.praise.dto.response.ReactionUser;
+import org.example.hugmeexp.domain.praise.dto.response.RecentPraiseSenderResponse;
 import org.example.hugmeexp.domain.praise.entity.*;
 import org.example.hugmeexp.domain.praise.enums.PraiseType;
 import org.example.hugmeexp.domain.praise.exception.PraiseNotFoundException;
@@ -44,7 +50,7 @@ public class PraiseService {
 
     /* 칭찬 생성 */
     @Transactional
-    public PraiseResponseDTO createPraise(PraiseRequestDTO praiseRequestDTO, User sender) {
+    public PraiseResponse createPraise(PraiseRequest praiseRequestDTO, User sender) {
 
 
         List<User> receiverUsers = praiseRequestDTO.getReceiverUsername().stream()
@@ -74,16 +80,16 @@ public class PraiseService {
         }
 
         List<UserProfileResponse> commentPro = Collections.emptyList();
-        List<EmojiReactionGroupDTO> emojis = Collections.emptyList();
+        List<EmojiReactionGroup> emojis = Collections.emptyList();
 
         // Entity -> DTO
-        return PraiseResponseDTO.from(saved, praiseReceivers, 0L, emojis, commentPro);
+        return PraiseResponse.from(saved, praiseReceivers, 0L, emojis, commentPro);
 
 
     }
 
     /* 날짜 조회 + 나와 관련된 칭찬 조건 */
-    public List<PraiseResponseDTO> findByDateRange(LocalDate startDate, LocalDate endDate, User currentUser, boolean me) {
+    public List<PraiseResponse> findByDateRange(LocalDate startDate, LocalDate endDate, User currentUser, boolean me) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();    // 2025-06-01 00:00:00
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);    // 2025-06-18 23:59:59.999
@@ -126,7 +132,7 @@ public class PraiseService {
                             .collect(Collectors.groupingBy(PraiseEmojiReaction::getEmoji));
 
                     // 이모지 그룹 DTO 변환
-                    List<EmojiReactionGroupDTO> emojiGroups = grouped.entrySet().stream().map(entry -> EmojiReactionGroupDTO.from(entry.getKey(), entry.getValue())).toList();
+                    List<EmojiReactionGroup> emojiGroups = grouped.entrySet().stream().map(entry -> EmojiReactionGroup.from(entry.getKey(), entry.getValue())).toList();
 
                     List<PraiseReceiver> receivers = receiverMap.getOrDefault(praise.getId(),List.of());
 
@@ -139,13 +145,13 @@ public class PraiseService {
                                 return new UserProfileResponse(url, user.getUsername(), user.getName());
                             }).toList();
 
-                    return PraiseResponseDTO.from(praise,receivers,commentCount, emojiGroups,commentProfiles);
+                    return PraiseResponse.from(praise,receivers,commentCount, emojiGroups,commentProfiles);
 
                 }).collect(Collectors.toList());
     }
 
     /* 날짜 조회 + 나와 관련된 칭찬 조건 + keyword 조건 */
-    public List<PraiseResponseDTO> searchByKeywordAndDate(LocalDate startDate, LocalDate endDate, User currentUser, boolean me, String keyword) {
+    public List<PraiseResponse> searchByKeywordAndDate(LocalDate startDate, LocalDate endDate, User currentUser, boolean me, String keyword) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
 
@@ -183,8 +189,8 @@ public class PraiseService {
                     List<PraiseEmojiReaction> reactions = praiseEmojiReactionRepository.findByPraise(praise);
                     Map<String, List<PraiseEmojiReaction>> grouped = reactions.stream()
                             .collect(Collectors.groupingBy(PraiseEmojiReaction::getEmoji));
-                    List<EmojiReactionGroupDTO> emojiGroups = grouped.entrySet().stream()
-                            .map(entry -> EmojiReactionGroupDTO.from(entry.getKey(), entry.getValue()))
+                    List<EmojiReactionGroup> emojiGroups = grouped.entrySet().stream()
+                            .map(entry -> EmojiReactionGroup.from(entry.getKey(), entry.getValue()))
                             .toList();
 
                     List<PraiseReceiver> receivers = receiverMap.getOrDefault(praise.getId(), List.of());
@@ -195,14 +201,14 @@ public class PraiseService {
                                 return new UserProfileResponse(url, user.getUsername(), user.getName());
                             }).toList();
 
-                    return PraiseResponseDTO.from(praise, receivers, commentCount, emojiGroups, commentProfiles);
+                    return PraiseResponse.from(praise, receivers, commentCount, emojiGroups, commentProfiles);
                 }).collect(Collectors.toList());
     }
 
 
 
     /* 칭찬 반응 좋은 칭찬글 */
-    public List<PraiseResponseDTO> findPopularPraises(LocalDate startDate, LocalDate endDate, int i) {
+    public List<PraiseResponse> findPopularPraises(LocalDate startDate, LocalDate endDate, int i) {
 
         LocalDateTime startDateTime = startDate.atStartOfDay();    // 2025-06-01 00:00:00
         LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);    // 2025-06-18 23:59:59.999
@@ -227,21 +233,21 @@ public class PraiseService {
                             .collect(Collectors.groupingBy(PraiseEmojiReaction::getEmoji));
 
                     // DTO 변환
-                    List<EmojiReactionGroupDTO> emojiGroups = grouped.entrySet().stream()
-                            .map(entry -> EmojiReactionGroupDTO.from(entry.getKey(),entry.getValue())).toList();
+                    List<EmojiReactionGroup> emojiGroups = grouped.entrySet().stream()
+                            .map(entry -> EmojiReactionGroup.from(entry.getKey(),entry.getValue())).toList();
 
                     // 수신자 리스트
                     List<PraiseReceiver> receivers = receiverMap.getOrDefault(praise.getId(), List.of());
 
-                    return PraiseResponseDTO.from(praise,receivers,commentCount,emojiGroups,List.of());
+                    return PraiseResponse.from(praise,receivers,commentCount,emojiGroups,List.of());
 
                 })
                 .filter(praiseResponseDTO -> praiseResponseDTO.getEmojis() != null &&
-                        praiseResponseDTO.getEmojis().stream().mapToInt(EmojiReactionGroupDTO::getCount).sum()>0)
+                        praiseResponseDTO.getEmojis().stream().mapToInt(EmojiReactionGroup::getCount).sum()>0)
 
                 // 이모지 반응 수 총합 기준 내림차순 정렬
-                .sorted(Comparator.comparingInt((PraiseResponseDTO p) ->
-                        p.getEmojis() == null ? 0 : p.getEmojis().stream().mapToInt(EmojiReactionGroupDTO::getCount).sum()
+                .sorted(Comparator.comparingInt((PraiseResponse p) ->
+                        p.getEmojis() == null ? 0 : p.getEmojis().stream().mapToInt(EmojiReactionGroup::getCount).sum()
                 ).reversed())
                 .limit(i)
                 .collect(Collectors.toList());
@@ -249,7 +255,7 @@ public class PraiseService {
     }
 
     /* 칭찬 칭찬 비율(한달동안 받은 칭찬 종류 각각 비율) */
-    public List<PraiseRatioResponseDTO> getPraiseRatioForLastMonth(Long userId) {
+    public List<PraiseRatioResponse> getPraiseRatioForLastMonth(Long userId) {
 
         // 한 달 날짜 범위 설정
         LocalDateTime endDateTime = LocalDateTime.now();
@@ -274,13 +280,13 @@ public class PraiseService {
                     PraiseType type = (PraiseType) row[0];
                     Long count = (Long) row[1];
                     int percentage = (int) Math.round(count*100.0/total);
-                    return PraiseRatioResponseDTO.from(type,percentage);
+                    return PraiseRatioResponse.from(type,percentage);
                 })
                 .collect(Collectors.toList());
     }
 
     /* 최근 칭찬 보낸 유저 조회 */
-    public List<RecentPraiseSenderResponseDTO> getRecentPraiseSenders(Long userId) {
+    public List<RecentPraiseSenderResponse> getRecentPraiseSenders(Long userId) {
 
         List<Praise> latestPraises = praiseReceiverRepository.findLatestPraisePerSender(userId);
 
@@ -300,14 +306,14 @@ public class PraiseService {
                     String url = sender.getPublicProfileImageUrl();
                     UserProfileResponse profile = new UserProfileResponse(url, sender.getUsername(), sender.getName());
 
-                    return RecentPraiseSenderResponseDTO.from(sender, List.of(profile));
+                    return RecentPraiseSenderResponse.from(sender, List.of(profile));
 
                 })
                 .collect(Collectors.toList());
     }
 
     /* 칭찬 상세 조회 */
-    public PraiseDetailResponseDTO getPraiseDetail(Long praiseId) {
+    public PraiseDetailResponse getPraiseDetail(Long praiseId) {
 
         // 칭찬 엔티티 조회
 //        Praise praise = praiseRepository.findById(praiseId).orElseThrow(() -> new PraiseNotFoundException());
@@ -327,20 +333,20 @@ public class PraiseService {
         Map<String, List<PraiseEmojiReaction>> grouped = reactions.stream()
                 .collect(Collectors.groupingBy(PraiseEmojiReaction::getEmoji));
 
-        List<EmojiReactionGroupDTO> emojiGroups = grouped.entrySet().stream()
-                .map(entry -> EmojiReactionGroupDTO.from(entry.getKey(), entry.getValue()))
+        List<EmojiReactionGroup> emojiGroups = grouped.entrySet().stream()
+                .map(entry -> EmojiReactionGroup.from(entry.getKey(), entry.getValue()))
                 .toList();
 
         List<CommentEmojiReaction> commentReactions = commentEmojiReactionRepository.findWithReactorByPraise(praise);
 
         // 댓글 별 이모지 반응 수 조회
-        Map<Long, Map<String, List<ReactionUserDTO>>> commentEmojiMap = commentReactions.stream()
+        Map<Long, Map<String, List<ReactionUser>>> commentEmojiMap = commentReactions.stream()
                 .collect(Collectors.groupingBy(
                         r -> r.getComment().getId(),
                         Collectors.groupingBy(
                                 CommentEmojiReaction::getEmoji,
                                 Collectors.mapping(
-                                        r -> ReactionUserDTO.builder()
+                                        r -> ReactionUser.builder()
                                                 .id(r.getReactorWriter().getId())
                                                 .username(r.getReactorWriter().getUsername())
                                                 .name(r.getReactorWriter().getName())
@@ -350,6 +356,6 @@ public class PraiseService {
                         )
                 ));
 
-        return PraiseDetailResponseDTO.from(praise,receiverList,commentList,emojiGroups,commentEmojiMap);
+        return PraiseDetailResponse.from(praise,receiverList,commentList,emojiGroups,commentEmojiMap);
     }
 }

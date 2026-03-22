@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentEmojiReactionResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentEmojiReactionResponse;
 import org.example.hugmeexp.domain.praise.service.CommentEmojiReactionService;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
@@ -25,17 +25,17 @@ public class CommentEmojiReactionController {
     /* 댓글에 반응 생성 */
     @Operation(summary = "칭찬게시물의 댓글에 반응 생성", description = "칭찬게시물의 댓글에 반응을 생성합니다.")
     @PostMapping("/{praiseId}/comments/{commentId}/emojis")
-    public ResponseEntity<ApiResponse<CommentEmojiReactionResponseDTO>> createReaction(
+    public ResponseEntity<ApiResponse<CommentEmojiReactionResponse>> createReaction(
             @PathVariable Long praiseId,
             @PathVariable Long commentId,
-            @Valid @RequestBody CommentEmojiReactionRequestDTO commentEmojiReactionRequestDTO,
+            @Valid @RequestBody CommentEmojiReactionRequest commentEmojiReactionRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         log.info("반응 등록 요청 : {} ", commentEmojiReactionRequestDTO);
 
-        CommentEmojiReactionResponseDTO result = commentEmojiReactionService.createCommentReaction(praiseId,commentId,commentEmojiReactionRequestDTO,userDetails.getUser());
+        CommentEmojiReactionResponse result = commentEmojiReactionService.createCommentReaction(praiseId,commentId,commentEmojiReactionRequestDTO,userDetails.getUser());
 
-        ApiResponse<CommentEmojiReactionResponseDTO> response = ApiResponse.success("댓글 반응 등록 완료", result);
+        ApiResponse<CommentEmojiReactionResponse> response = ApiResponse.success("댓글 반응 등록 완료", result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

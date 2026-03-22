@@ -2,9 +2,9 @@ package org.example.hugmeexp.global.AWS.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.global.AWS.dto.ImageDeleteResponse;
-import org.example.hugmeexp.global.AWS.dto.ImageUploadResponse;
-import org.example.hugmeexp.global.AWS.dto.ImageUrlResponse;
+import org.example.hugmeexp.global.AWS.dto.response.ImageDeleteResponse;
+import org.example.hugmeexp.global.AWS.dto.response.ImageUploadResponse;
+import org.example.hugmeexp.global.AWS.dto.response.ImageUrlResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

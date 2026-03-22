@@ -1,7 +1,7 @@
 package org.example.hugmeexp.domain.recruitment.repository;
 
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentSearchConditionDTO;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentSearchCondition;
 import org.example.hugmeexp.domain.recruitment.entity.Recruitment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,13 +22,13 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
      *
      * @param cond 검색 조건 DTO
      * @param pageable 페이징 정보
-     * @return 필터링된 채용 공고 목록 (RecruitmentResponseDTO)
+     * @return 필터링된 채용 공고 목록 (RecruitmentResponse)
      *
      * 사용자가 지도를 드래그하여 선택한 사각형 범위 내에 있는 공고만 필터링
      */
     @Query(
         value = """
-            SELECT new org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO(
+            SELECT new org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponse(
                 r.id, r.recruitmentSourceId, r.title, c.companyName, c.companyImageUrl, r.dueDate,
                 r.experienceMin, r.experienceMax, r.workLocation, r.latitude, r.longitude, r.modifiedAt
             )
@@ -101,7 +101,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
                     LOWER(c.companyName) LIKE LOWER(CONCAT('%', :#{#cond.keyword}, '%'))
                 )
     """)
-    Page<RecruitmentResponseDTO> findBySearchConditions(@Param("cond") RecruitmentSearchConditionDTO cond, Pageable pageable);
+    Page<RecruitmentResponse> findBySearchConditions(@Param("cond") RecruitmentSearchCondition cond, Pageable pageable);
 
 
     /**
@@ -112,7 +112,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
      * @return 최신 채용 공고 목록 (modifiedAt 기준 내림차순 정렬)
      */
     @Query("""
-        SELECT new org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO(
+        SELECT new org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponse(
             r.id, r.recruitmentSourceId, r.title, c.companyName, c.companyImageUrl, r.dueDate,
             r.experienceMin, r.experienceMax, r.workLocation, r.latitude, r.longitude, r.modifiedAt
         )
@@ -121,7 +121,7 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
         WHERE r.dueDate > CURRENT_TIMESTAMP
         ORDER BY r.modifiedAt DESC
     """)
-    List<RecruitmentResponseDTO> findLatestRecruitments(Pageable pageable);
+    List<RecruitmentResponse> findLatestRecruitments(Pageable pageable);
 
     /**
      * 채용 공고의 상세 정보를 ID로 조회합니다.

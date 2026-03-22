@@ -3,7 +3,7 @@ package org.example.hugmeexp.domain.recruitment.entity;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.*;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentRequestDTO;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentRequest;
 import org.example.hugmeexp.domain.recruitment.enums.SourceType;
 import org.example.hugmeexp.global.entity.BaseEntity;
 
@@ -86,7 +86,7 @@ public class Recruitment extends BaseEntity {
     @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
-    public void updateFromRequest(@Valid RecruitmentRequestDTO requestDTO) {
+    public void updateFromRequest(@Valid RecruitmentRequest requestDTO) {
         title = requestDTO.getTitle();
         education = requestDTO.getEducation();
         experienceMin = requestDTO.getExperienceMin();

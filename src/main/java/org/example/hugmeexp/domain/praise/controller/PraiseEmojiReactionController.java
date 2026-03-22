@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.PraiseEmojiReactionResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseEmojiReactionRequest;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseEmojiReactionResponse;
 import org.example.hugmeexp.domain.praise.service.PraiseEmojiReactionService;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.security.CustomUserDetails;
@@ -25,17 +25,17 @@ public class PraiseEmojiReactionController {
     /* 칭찬 게시물에 반응 생성 */
     @Operation(summary = "칭찬게시물의 반응 생성", description = "칭찬게시물의 반응을 생성합니다.")
     @PostMapping("/{praiseId}/emojis")
-    public ResponseEntity<ApiResponse<PraiseEmojiReactionResponseDTO>> addEmojiReaction(
+    public ResponseEntity<ApiResponse<PraiseEmojiReactionResponse>> addEmojiReaction(
             @PathVariable Long praiseId,
-            @Valid @RequestBody PraiseEmojiReactionRequestDTO praiseEmojiReactionRequestDTO,
+            @Valid @RequestBody PraiseEmojiReactionRequest praiseEmojiReactionRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails
             ){
         log.info("Praise emoji reaction creation request - praiseId: {}, userId: {}, emoji: {}",
                 praiseId, userDetails.getUser().getId(), praiseEmojiReactionRequestDTO.getEmoji());
 
-        PraiseEmojiReactionResponseDTO praiseEmojiReactionResponseDTO = praiseEmojiReactionService.addEmojiReaction(praiseId,userDetails.getUser(),praiseEmojiReactionRequestDTO);
+        PraiseEmojiReactionResponse praiseEmojiReactionResponseDTO = praiseEmojiReactionService.addEmojiReaction(praiseId,userDetails.getUser(),praiseEmojiReactionRequestDTO);
 
-        ApiResponse<PraiseEmojiReactionResponseDTO> response = ApiResponse.success("칭찬 게시물에 반응 생성 완료", praiseEmojiReactionResponseDTO);
+        ApiResponse<PraiseEmojiReactionResponse> response = ApiResponse.success("칭찬 게시물에 반응 생성 완료", praiseEmojiReactionResponseDTO);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

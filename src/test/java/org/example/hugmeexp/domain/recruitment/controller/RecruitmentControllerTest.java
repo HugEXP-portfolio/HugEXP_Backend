@@ -1,11 +1,11 @@
 package org.example.hugmeexp.domain.recruitment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.hugmeexp.domain.recruitment.dto.CompanyRequestDTO;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentRequestDTO;
-import org.example.hugmeexp.domain.recruitment.dto.RecruitmentResponseDTO;
-import org.example.hugmeexp.domain.recruitment.dto.TechItemRequestDTO;
-import org.example.hugmeexp.domain.recruitment.dto.TagRequestDTO;
+import org.example.hugmeexp.domain.recruitment.dto.request.CompanyRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.RecruitmentRequest;
+import org.example.hugmeexp.domain.recruitment.dto.response.RecruitmentResponse;
+import org.example.hugmeexp.domain.recruitment.dto.request.TechItemRequest;
+import org.example.hugmeexp.domain.recruitment.dto.request.TagRequest;
 import org.example.hugmeexp.domain.recruitment.enums.SourceType;
 import org.example.hugmeexp.domain.recruitment.service.RecruitmentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,8 +41,8 @@ class RecruitmentControllerTest {
     @Mock
     private RecruitmentService recruitmentService;
 
-    private RecruitmentRequestDTO recruitmentRequestDTO;
-    private RecruitmentResponseDTO recruitmentResponseDTO;
+    private RecruitmentRequest recruitmentRequestDTO;
+    private RecruitmentResponse recruitmentResponseDTO;
 
     @BeforeEach
     void setUp() {
@@ -53,8 +53,8 @@ class RecruitmentControllerTest {
         objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules(); // LocalDateTime 직렬화를 위해
 
-        // 테스트용 CompanyRequestDTO 생성 (검증 규칙에 맞게 수정)
-        CompanyRequestDTO companyRequestDTO = CompanyRequestDTO.builder()
+        // 테스트용 CompanyRequest 생성 (검증 규칙에 맞게 수정)
+        CompanyRequest companyRequestDTO = CompanyRequest.builder()
                 .companyName("테스트 회사") // @NotBlank, @Size(max = 200)
                 .companyAddress("서울시 강남구 테헤란로 123") // @Size(max = 500)
                 .establishmentDate(LocalDateTime.now().toLocalDate()) // @PastOrPresent
@@ -64,20 +64,20 @@ class RecruitmentControllerTest {
                 .longitude(new BigDecimal("126.97800000")) // @Digits(integer = 3, fraction = 8)
                 .build();
 
-        // 테스트용 TechItemRequestDTO 생성 (검증 규칙에 맞게 수정)
-        List<TechItemRequestDTO> techItems = List.of(
-                new TechItemRequestDTO("Java", "자바", "https://icon.com/java.png"),
-                new TechItemRequestDTO("Spring", "스프링", "https://icon.com/spring.png")
+        // 테스트용 TechItemRequest 생성 (검증 규칙에 맞게 수정)
+        List<TechItemRequest> techItems = List.of(
+                new TechItemRequest("Java", "자바", "https://icon.com/java.png"),
+                new TechItemRequest("Spring", "스프링", "https://icon.com/spring.png")
         );
 
-        // 테스트용 TagRequestDTO 생성 (검증 규칙에 맞게 수정)
-        List<TagRequestDTO> tags = List.of(
-                new TagRequestDTO("신입"),
-                new TagRequestDTO("정규직")
+        // 테스트용 TagRequest 생성 (검증 규칙에 맞게 수정)
+        List<TagRequest> tags = List.of(
+                new TagRequest("신입"),
+                new TagRequest("정규직")
         );
 
-        // 테스트용 RecruitmentRequestDTO 생성 (모든 필수 필드와 검증 규칙에 맞게 수정)
-        recruitmentRequestDTO = new RecruitmentRequestDTO();
+        // 테스트용 RecruitmentRequest 생성 (모든 필수 필드와 검증 규칙에 맞게 수정)
+        recruitmentRequestDTO = new RecruitmentRequest();
         recruitmentRequestDTO.setRecruitmentSourceId("TEST_001"); // @NotBlank
         recruitmentRequestDTO.setTitle("백엔드 개발자 모집"); // @NotBlank, @Size(max = 500)
         recruitmentRequestDTO.setEducation(4); // @Min(0), @Max(10)
@@ -98,8 +98,8 @@ class RecruitmentControllerTest {
         recruitmentRequestDTO.setRequiredSkills(techItems); // @Valid
         recruitmentRequestDTO.setTags(tags); // @Valid
 
-        // 테스트용 RecruitmentResponseDTO 생성
-        recruitmentResponseDTO = RecruitmentResponseDTO.builder()
+        // 테스트용 RecruitmentResponse 생성
+        recruitmentResponseDTO = RecruitmentResponse.builder()
                 .id(1L)
                 .title("백엔드 개발자 모집")
                 .experienceMin(2)
@@ -115,7 +115,7 @@ class RecruitmentControllerTest {
     @DisplayName("올바른 API 키로 채용 공고 스크래핑 - 성공")
     void scrapeRecruitment_ValidApiKey_Success() throws Exception {
         // given
-        when(recruitmentService.createOrUpdateRecruitment(any(RecruitmentRequestDTO.class)))
+        when(recruitmentService.createOrUpdateRecruitment(any(RecruitmentRequest.class)))
                 .thenReturn(recruitmentResponseDTO);
 
         // when & then
@@ -159,7 +159,7 @@ class RecruitmentControllerTest {
     @DisplayName("잘못된 요청 데이터로 채용 공고 스크래핑 - 실패")
     void scrapeRecruitment_InvalidRequestData_BadRequest() throws Exception {
         // given - 필수 필드가 누락된 요청 데이터
-        RecruitmentRequestDTO invalidRequest = new RecruitmentRequestDTO();
+        RecruitmentRequest invalidRequest = new RecruitmentRequest();
         invalidRequest.setRecruitmentSourceId(""); // 빈 값
         // 다른 필수 필드들 누락
 

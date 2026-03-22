@@ -3,7 +3,7 @@ package org.example.hugmeexp.domain.qeust.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.qeust.dto.UserQuestResponse;
+import org.example.hugmeexp.domain.qeust.dto.response.UserQuestResponse;
 import org.example.hugmeexp.domain.qeust.entity.UserQuest;
 import org.example.hugmeexp.domain.qeust.enums.QuestType;
 import org.example.hugmeexp.domain.qeust.exception.NoSuchQuestException;

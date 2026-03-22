@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.domain.praise.dto.CommentRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.CommentResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.request.CommentRequest;
+import org.example.hugmeexp.domain.praise.dto.response.CommentResponse;
 import org.example.hugmeexp.domain.praise.service.CommentService;
 import org.example.hugmeexp.domain.user.entity.User;
 import org.example.hugmeexp.global.common.response.ApiResponse;
@@ -27,15 +27,15 @@ public class CommentController {
     /* 댓글 작성 */
     @Operation(summary = "칭찬댓글 생성", description = "칭찬 게시물에 새로운 댓글을 생성합니다")
     @PostMapping("/{praiseId}/comments")
-    public ResponseEntity<ApiResponse<CommentResponseDTO>> createComment(
+    public ResponseEntity<ApiResponse<CommentResponse>> createComment(
             @PathVariable Long praiseId,
-            @RequestBody CommentRequestDTO commentRequestDTO,
+            @RequestBody CommentRequest commentRequestDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails){
 
         User commentWriter = userDetails.getUser();
-        CommentResponseDTO result = commentService.createComment(praiseId, commentRequestDTO, commentWriter);
+        CommentResponse result = commentService.createComment(praiseId, commentRequestDTO, commentWriter);
 
-        ApiResponse<CommentResponseDTO> response = ApiResponse.success("댓글 작성 완료", result);
+        ApiResponse<CommentResponse> response = ApiResponse.success("댓글 작성 완료", result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

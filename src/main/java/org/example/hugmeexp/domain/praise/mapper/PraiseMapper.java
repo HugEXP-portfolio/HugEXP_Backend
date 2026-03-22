@@ -1,8 +1,8 @@
 package org.example.hugmeexp.domain.praise.mapper;
 
-import org.example.hugmeexp.domain.praise.dto.EmojiReactionGroupDTO;
-import org.example.hugmeexp.domain.praise.dto.PraiseRequestDTO;
-import org.example.hugmeexp.domain.praise.dto.PraiseResponseDTO;
+import org.example.hugmeexp.domain.praise.dto.response.EmojiReactionGroup;
+import org.example.hugmeexp.domain.praise.dto.request.PraiseRequest;
+import org.example.hugmeexp.domain.praise.dto.response.PraiseResponse;
 import org.example.hugmeexp.domain.praise.entity.Praise;
 import org.example.hugmeexp.domain.praise.entity.PraiseReceiver;
 import org.example.hugmeexp.domain.user.dto.response.UserProfileResponse;
@@ -14,7 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PraiseMapper {
 
-    default Praise toEntity(PraiseRequestDTO praiseRequestDTO, User senderId){
+    default Praise toEntity(PraiseRequest praiseRequestDTO, User senderId){
         return Praise.builder()
                 .sender(senderId)
                 .content(praiseRequestDTO.getContent())
@@ -23,8 +23,8 @@ public interface PraiseMapper {
     }
 
 
-    default PraiseResponseDTO toDTO(Praise praise, List<PraiseReceiver> praiseReceivers, long commentCount, List<EmojiReactionGroupDTO> emojiGroups, List<UserProfileResponse> commentPro){
+    default PraiseResponse toDTO(Praise praise, List<PraiseReceiver> praiseReceivers, long commentCount, List<EmojiReactionGroup> emojiGroups, List<UserProfileResponse> commentPro){
 
-        return PraiseResponseDTO.from(praise, praiseReceivers, commentCount, emojiGroups,commentPro);
+        return PraiseResponse.from(praise, praiseReceivers, commentCount, emojiGroups,commentPro);
     }
 }
