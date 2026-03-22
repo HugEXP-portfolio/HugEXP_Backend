@@ -1,9 +1,8 @@
 package org.example.hugmeexp.global.common.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.example.hugmeexp.global.common.exception.code.BaseCode;
 import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.BaseCode;
 import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.springframework.http.HttpHeaders;
@@ -21,32 +20,19 @@ import java.util.Map;
 
 /**
  * 어플리케이션 전역에서 발생하는 예외를 처리하는 핸들러.
- * 새로운 예외(BaseException)와 기존 예외(BaseCustomException)를 모두 처리하여 점진적 마이그레이션을 지원합니다.
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
-     * 새로 정의된 BaseException을 처리합니다.
+     * BaseException을 처리합니다.
      */
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ApiResponse<Void>> handleBaseException(BaseException e) {
-        log.warn("BaseException occurred: {}", e.getErrorCode().getMessage(), e);
-        BaseCode code = e.getErrorCode();
-        return createErrorResponse(code, null);
-    }
-
-    /**
-     * [임시] 기존 BaseCustomException을 처리하여 마이그레이션을 지원합니다.
-     * 모든 도메인의 예외가 BaseException으로 전환되면 이 핸들러는 삭제됩니다.
-     */
-    @ExceptionHandler(BaseCustomException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBaseCustomException(BaseCustomException e) {
-        log.warn("Legacy Exception (BaseCustomException) is being handled: {}", e.getMessage(), e);
-        String consistentMessage = ErrorStatus.PREFIX + e.getMessage();
-        ApiResponse<Void> response = ApiResponse.failure(consistentMessage, null);
-        return ResponseEntity.status(e.getHttpStatus()).body(response);
+        log.warn("BaseException occurred: {}", e.getMessage(), e);
+        ApiResponse<Void> response = ApiResponse.failure(e.getMessage(), null);
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
 
     /**

@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.user.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class PhoneNumberDuplicatedException extends BaseCustomException {
+public class PhoneNumberDuplicatedException extends BaseException {
     public PhoneNumberDuplicatedException() {
-        super(HttpStatus.CONFLICT, "이미 존재하는 휴대폰 번호입니다.", 409);
+        super(ErrorStatus.PHONE_NUMBER_DUPLICATED);
     }
 }

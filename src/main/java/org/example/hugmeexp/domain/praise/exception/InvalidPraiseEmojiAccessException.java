@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class InvalidPraiseEmojiAccessException extends BaseCustomException {
+public class InvalidPraiseEmojiAccessException extends BaseException {
     public InvalidPraiseEmojiAccessException() {
-        super(HttpStatus.BAD_REQUEST,"칭찬 게시물의 실제 반응과 일치하지 않습니다.",400);
+        super(ErrorStatus.INVALID_PRAISE_EMOJI_ACCESS);
     }
 }

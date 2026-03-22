@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.hugmeexp.global.common.exception.response.ErrorResponse;
+import org.example.hugmeexp.global.common.response.ApiResponse;
 import org.example.hugmeexp.global.infra.auth.service.RedisSessionService;
 import org.example.hugmeexp.global.security.CustomUserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,10 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");
 
-                ErrorResponse errorResponse = ErrorResponse.builder()
-                        .code(401)
-                        .message("Revoked token")
-                        .build();
+                ApiResponse<Void> errorResponse = ApiResponse.failure("Revoked token");
 
                 String json = objectMapper.writeValueAsString(errorResponse);
                 response.getWriter().write(json);

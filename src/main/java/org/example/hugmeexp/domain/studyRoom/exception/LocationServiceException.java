@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class LocationServiceException extends BaseCustomException {
+public class LocationServiceException extends BaseException {
     public LocationServiceException(String message) {
-        super(HttpStatus.BAD_REQUEST, "위치 서비스 오류: " + message, 400);
+        super(ErrorStatus.LOCATION_SERVICE_ERROR, message);
     }
 }

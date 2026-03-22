@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.notification.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class NotificationNotFoundException extends BaseCustomException {
-    public NotificationNotFoundException(){
-        super(HttpStatus.NOT_FOUND,"알림을 찾을 수 없습니다",404);
+public class NotificationNotFoundException extends BaseException {
+    public NotificationNotFoundException() {
+        super(ErrorStatus.NOTIFICATION_NOT_FOUND);
     }
 }

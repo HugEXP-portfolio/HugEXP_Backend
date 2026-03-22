@@ -1,14 +1,14 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class SubmissionFileUploadException extends BaseCustomException {
-    public SubmissionFileUploadException() {
-        super(HttpStatus.BAD_REQUEST, "파일 업로드에 실패했습니다. 파일 형식이 올바른지 확인해주세요.");
+public class SubmissionFileUploadException extends BaseException {
+    public SubmissionFileUploadException(String message) {
+        super(message, ErrorStatus.SUBMISSION_FILE_UPLOAD);
     }
 
-    public SubmissionFileUploadException(String s) {
-        super(HttpStatus.BAD_REQUEST, s);
+    public SubmissionFileUploadException() {
+        super(ErrorStatus.SUBMISSION_FILE_UPLOAD);
     }
 }

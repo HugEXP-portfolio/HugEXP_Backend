@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class StudyRoomCapacityExceededException extends BaseCustomException {
+public class StudyRoomCapacityExceededException extends BaseException {
     public StudyRoomCapacityExceededException() {
-        super(HttpStatus.BAD_REQUEST, "스터디룸 수용 인원을 초과했습니다.", 400);
+        super(ErrorStatus.STUDY_ROOM_CAPACITY_EXCEEDED);
     }
 }

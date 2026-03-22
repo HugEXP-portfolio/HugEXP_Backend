@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class StudyRoomReservationNotFoundException extends BaseCustomException {
+public class StudyRoomReservationNotFoundException extends BaseException {
     public StudyRoomReservationNotFoundException() {
-        super(HttpStatus.NOT_FOUND, "스터디룸 예약을 찾을 수 없습니다.", 404);
+        super(ErrorStatus.STUDY_ROOM_RESERVATION_NOT_FOUND);
     }
 }

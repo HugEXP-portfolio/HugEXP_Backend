@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class DuplicateEmojiReactionException extends BaseCustomException {
+public class DuplicateEmojiReactionException extends BaseException {
     public DuplicateEmojiReactionException() {
-        super(HttpStatus.CONFLICT,"이미 반응을 한 이모지 입니다",409);
+        super(ErrorStatus.DUPLICATE_EMOJI_REACTION);
     }
 }

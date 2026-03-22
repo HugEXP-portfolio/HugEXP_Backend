@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.shop.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class ProductDeletedException extends BaseCustomException {
+public class ProductDeletedException extends BaseException {
     public ProductDeletedException() {
-        super(HttpStatus.BAD_REQUEST, "Already deleted product.");
+        super(ErrorStatus.PRODUCT_DELETED);
     }
 }

@@ -5,7 +5,7 @@ import org.example.hugmeexp.domain.missionTask.dto.request.MissionTaskRequest;
 import org.example.hugmeexp.domain.missionTask.enums.TaskState;
 import org.example.hugmeexp.domain.missionTask.exception.MissionTaskNotFoundException;
 import org.example.hugmeexp.domain.missionTask.service.MissionTaskService;
-import org.example.hugmeexp.global.common.exception.ExceptionController;
+import org.example.hugmeexp.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -50,7 +50,7 @@ class MissionTaskControllerTest {
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(missionTaskController)
-                .setControllerAdvice(new ExceptionController())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
     }

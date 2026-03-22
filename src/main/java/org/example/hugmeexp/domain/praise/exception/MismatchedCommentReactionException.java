@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class MismatchedCommentReactionException extends BaseCustomException {
+public class MismatchedCommentReactionException extends BaseException {
     public MismatchedCommentReactionException() {
-        super(HttpStatus.BAD_REQUEST,"반응이 해당 댓글에 속하지 않습니다.",400);
+        super(ErrorStatus.MISMATCHED_COMMENT_REACTION);
     }
 }

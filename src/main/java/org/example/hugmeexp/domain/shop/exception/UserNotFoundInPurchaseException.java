@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.shop.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class UserNotFoundInPurchaseException extends BaseCustomException {
+public class UserNotFoundInPurchaseException extends BaseException {
     public UserNotFoundInPurchaseException() {
-        super(HttpStatus.NOT_FOUND, "There is no user.");
+        super(ErrorStatus.USER_NOT_FOUND_IN_PURCHASE);
     }
 }

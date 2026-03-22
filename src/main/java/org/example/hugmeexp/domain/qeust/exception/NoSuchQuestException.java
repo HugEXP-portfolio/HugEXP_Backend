@@ -1,11 +1,11 @@
 package org.example.hugmeexp.domain.qeust.exception;
 
 import org.example.hugmeexp.domain.user.entity.User;
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class NoSuchQuestException extends BaseCustomException {
+public class NoSuchQuestException extends BaseException {
     public NoSuchQuestException(User user, Long userQuestId) {
-        super(HttpStatus.NOT_FOUND, user.getUsername() + " has not been assigned quest #" + userQuestId + ".");
+        super(ErrorStatus.NO_SUCH_QUEST, user.getUsername(), userQuestId);
     }
 }

@@ -1,13 +1,14 @@
 package org.example.hugmeexp.domain.mission.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class SubmissionNotFoundException extends BaseCustomException {
+public class SubmissionNotFoundException extends BaseException {
     public SubmissionNotFoundException(String message) {
-        super(HttpStatus.NOT_FOUND, message);
+        super(message, ErrorStatus.SUBMISSION_NOT_FOUND);
     }
+
     public SubmissionNotFoundException() {
-        super(HttpStatus.NOT_FOUND, "제출 정보를 찾을 수 없습니다.");
+        super(ErrorStatus.SUBMISSION_NOT_FOUND);
     }
 }

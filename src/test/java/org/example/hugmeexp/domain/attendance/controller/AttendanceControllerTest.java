@@ -6,7 +6,7 @@ import org.example.hugmeexp.domain.attendance.dto.response.AttendanceStatusRespo
 import org.example.hugmeexp.domain.attendance.exception.AttendanceAlreadyCheckedException;
 import org.example.hugmeexp.domain.attendance.exception.AttendanceUserNotFoundException;
 import org.example.hugmeexp.domain.attendance.service.AttendanceService;
-import org.example.hugmeexp.global.common.exception.ExceptionController;
+import org.example.hugmeexp.global.common.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +55,7 @@ class AttendanceControllerTest {
     @BeforeEach
     void setup() {
         mockMvc = MockMvcBuilders.standaloneSetup(attendanceController)
-                .setControllerAdvice(new ExceptionController())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
     }

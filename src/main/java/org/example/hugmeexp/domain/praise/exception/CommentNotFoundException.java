@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class CommentNotFoundException extends BaseCustomException {
+public class CommentNotFoundException extends BaseException {
     public CommentNotFoundException() {
-        super(HttpStatus.NOT_FOUND,"댓글을 찾을 수 없습니다",404);
+        super(ErrorStatus.PRAISE_COMMENT_NOT_FOUND);
     }
 }

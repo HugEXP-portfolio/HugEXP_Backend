@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.user.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
-public class UnsupportedImageExtensionException extends BaseCustomException {
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
+
+public class UnsupportedImageExtensionException extends BaseException {
     public UnsupportedImageExtensionException(String ext) {
-        super(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 확장자 : " + ext, 400);
+        super(ErrorStatus.UNSUPPORTED_IMAGE_EXTENSION, ext);
     }
 }
-

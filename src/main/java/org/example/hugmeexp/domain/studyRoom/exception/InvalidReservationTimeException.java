@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.studyRoom.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class InvalidReservationTimeException extends BaseCustomException {
+public class InvalidReservationTimeException extends BaseException {
     public InvalidReservationTimeException() {
-        super(HttpStatus.BAD_REQUEST, "유효하지 않은 예약 시간입니다.", 400);
+        super(ErrorStatus.INVALID_RESERVATION_TIME);
     }
 }

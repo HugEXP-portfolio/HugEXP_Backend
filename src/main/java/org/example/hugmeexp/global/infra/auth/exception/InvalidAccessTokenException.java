@@ -1,11 +1,10 @@
 package org.example.hugmeexp.global.infra.auth.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.example.hugmeexp.global.common.exception.ErrorCode;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class InvalidAccessTokenException extends BaseCustomException {
-    public InvalidAccessTokenException(ErrorCode errorCode) {
-        super(errorCode.getStatus(), errorCode.getMessage(), errorCode.getStatus().value());
+public class InvalidAccessTokenException extends BaseException {
+    public InvalidAccessTokenException() {
+        super(ErrorStatus.INVALID_ACCESS_TOKEN);
     }
 }
-

@@ -1,10 +1,10 @@
 package org.example.hugmeexp.domain.missionGroup.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class TeacherNotFoundException extends BaseCustomException {
+public class TeacherNotFoundException extends BaseException {
     public TeacherNotFoundException() {
-        super(HttpStatus.NOT_FOUND, "해당 강사를 찾을 수 없습니다.");
+        super(ErrorStatus.TEACHER_NOT_FOUND);
     }
 }

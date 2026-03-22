@@ -1,11 +1,10 @@
 package org.example.hugmeexp.domain.praise.exception;
 
-import org.example.hugmeexp.global.common.exception.BaseCustomException;
-import org.springframework.http.HttpStatus;
+import org.example.hugmeexp.global.common.exception.BaseException;
+import org.example.hugmeexp.global.common.exception.code.ErrorStatus;
 
-public class PraiseNotFoundException extends BaseCustomException {
-
+public class PraiseNotFoundException extends BaseException {
     public PraiseNotFoundException() {
-        super(HttpStatus.NOT_FOUND,"칭찬 게시물을 찾을 수 없습니다",404);
+        super(ErrorStatus.PRAISE_NOT_FOUND);
     }
 }
